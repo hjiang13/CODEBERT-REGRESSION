@@ -23,8 +23,8 @@ class Model(nn.Module):
         logits=self.encoder(input_ids,attention_mask=input_ids.ne(1))[0]
         prob=torch.softmax(logits,-1)
         if labels is not None:
-            loss_fct = nn.MSELoss(ignore_index=-1)
-            loss = loss_fct(logits,labels)
+            #loss_fct = 
+            loss = nn.MSELoss(logits, labels)
             return loss,prob
         else:
             return prob

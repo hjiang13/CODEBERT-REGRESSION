@@ -251,6 +251,8 @@ def test(args, model, tokenizer):
     logits=np.concatenate(logits,0)
     labels=np.concatenate(labels,0)
     preds=logits.argmax(-1)
+    for i in range(len(preds)):
+        logger.info(f"{preds[i]}, {labels[i]}")    
     with open(os.path.join(args.output_dir,"predictions.txt"),'w') as f:
         for example,pred in zip(eval_dataset.examples,preds):
             f.write(str(pred)+'\n')

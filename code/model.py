@@ -26,6 +26,7 @@ class Model(nn.Module):
         if labels is not None:
             #loss_fct = 
             loss = nn.MSELoss(logits, labels)
+            logger.info("Hailong: the loss is : " + str(loss)) 
             return loss,prob
         else:
             return prob

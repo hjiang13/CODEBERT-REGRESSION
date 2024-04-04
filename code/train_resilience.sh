@@ -8,9 +8,9 @@ python run.py \
     --eval_data_file=../dataset/SDC_test_resilience_r.jsonl \
     --test_data_file=../dataset/SDC_test_resilience_r.jsonl \
     --num_train_epochs 5 \
-    --block_size 256 \
+    --block_size 1028 \
     --train_batch_size 4 \
     --eval_batch_size 1 \
     --learning_rate 2e-5 \
     --max_grad_norm 1.0 \
-    --seed 123456  2>&1 | tee train.log
+    --seed 4  2>&1 | tee train.log

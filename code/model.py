@@ -9,7 +9,7 @@ import torch.nn.functional as F
 from torch.nn import CrossEntropyLoss, MSELoss
 import logging
     
-    
+logger = logging.getLogger(__name__)    
 class Model(nn.Module):   
     def __init__(self, encoder,config,tokenizer,args):
         super(Model, self).__init__()

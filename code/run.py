@@ -105,7 +105,7 @@ def train(args, train_dataset, model, tokenizer):
     train_sampler = RandomSampler(train_dataset)
     
     train_dataloader = DataLoader(train_dataset, sampler=train_sampler, 
-                                  batch_size=args.train_batch_size,num_workers=0,pin_memory=False)
+                                  batch_size=args.train_batch_size,num_workers=2,pin_memory=False)
 
 
     

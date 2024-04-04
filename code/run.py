@@ -271,6 +271,8 @@ def test(args, model, tokenizer):
     with open(os.path.join(args.output_dir,"predictions.txt"),'w') as f:
         for example,pred in zip(eval_dataset.examples,preds):
             f.write(str(pred)+'\n')
+    for key in sorted(result.keys()):
+            logger.info("  %s = %s", key, str(round(result[key],4)))
     return result
  
     

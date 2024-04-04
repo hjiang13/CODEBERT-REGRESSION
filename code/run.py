@@ -135,8 +135,10 @@ def train(args, train_dataset, model, tokenizer):
         losses=[]
         logger.info("Hailong: begin to integrate")
         for step, batch in enumerate(bar):
-            inputs = batch[0].to(args.device)        
-            labels=batch[1].to(args.device) 
+            logger.info("Hailong: loading data")
+            inputs = batch[0].to(args.device) 
+            logger.info("Hailong: laoding label")       
+            labels=float(batch[1].to(args.device))
             model.train()
             loss,logits = model(inputs,labels)
 

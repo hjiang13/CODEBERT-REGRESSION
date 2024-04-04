@@ -242,7 +242,7 @@ def test(args, model, tokenizer):
     labels=[]
     for batch in tqdm(eval_dataloader,total=len(eval_dataloader)):
         inputs = batch[0].to(args.device)
-        logger(f"The code is: {inputs}")        
+        logger.info(f"The code is: {inputs}")        
         label=batch[1].to(args.device) 
         with torch.no_grad():
             lm_loss,logit = model(inputs,label)

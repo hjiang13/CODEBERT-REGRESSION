@@ -229,7 +229,7 @@ def test(args, model, tokenizer):
     # Note that DistributedSampler samples randomly
     eval_dataset = TextDataset(tokenizer, args,args.test_data_file)
     eval_sampler = SequentialSampler(eval_dataset)
-    eval_dataloader = DataLoader(eval_dataset, sampler=eval_sampler, batch_size=args.eval_batch_size，num_workers=4,pin_memory=True)
+    eval_dataloader = DataLoader(eval_dataset, sampler=eval_sampler, batch_size=args.eval_batch_size, num_workers=4,pin_memory=True)
 
     # Eval!
     logger.info("***** Running Test *****")

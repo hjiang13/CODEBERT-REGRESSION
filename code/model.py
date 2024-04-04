@@ -7,7 +7,7 @@ from torch.autograd import Variable
 import copy
 import torch.nn.functional as F
 from torch.nn import CrossEntropyLoss, MSELoss
-
+import logging
     
     
 class Model(nn.Module):   

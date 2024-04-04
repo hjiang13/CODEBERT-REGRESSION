@@ -311,7 +311,7 @@ def main():
     set_seed(args.seed)
 
     config = RobertaConfig.from_pretrained(args.model_name_or_path)
-    config.num_labels=100
+    config.num_labels=1 # can run a regression model using float target values and num_labels=1 in a classification head
     tokenizer = RobertaTokenizer.from_pretrained(args.tokenizer_name)
     model = RobertaForSequenceClassification.from_pretrained(args.model_name_or_path,config=config)    
 

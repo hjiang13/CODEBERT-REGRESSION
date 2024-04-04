@@ -4,9 +4,9 @@ python run.py \
     --model_name_or_path=neulab/codebert-cpp \
     --do_train \
     --do_test \
-    --train_data_file=../dataset/train_resilience.jsonl \
-    --eval_data_file=../dataset/valid_resilience.jsonl \
-    --test_data_file=../dataset/test_resilience.jsonl \
+    --train_data_file=../dataset/SDC_train_resilience_r.jsonl \
+    --eval_data_file=../dataset/SDC_test_resilience_r.jsonl \
+    --test_data_file=../dataset/SDC_test_resilience_r.jsonl \
     --num_train_epochs 5 \
     --block_size 256 \
     --train_batch_size 4 \

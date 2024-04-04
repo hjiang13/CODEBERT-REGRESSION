@@ -22,7 +22,7 @@ class Model(nn.Module):
     def forward(self, input_ids=None,labels=None): 
         logits=self.encoder(input_ids,attention_mask=input_ids.ne(1))[0]
         prob=torch.softmax(logits,-1)
-        logger.info("Hailong: prob: " + prob) 
+        logger.info( prob) 
         if labels is not None:
             #loss_fct = 
             loss = nn.MSELoss(logits, labels)

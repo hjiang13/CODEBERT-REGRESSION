@@ -24,8 +24,8 @@ class Model(nn.Module):
         prob=torch.softmax(logits,-1)
         logger.info( prob) 
         if labels is not None:
-            #loss_fct = 
-            loss = nn.MSELoss(logits, labels)
+            loss_fct = nn.MSELoss()
+            loss = loss_fct(logits,labels)
             logger.info("Hailong: the loss is : " + str(loss)) 
             return loss,prob
         else:

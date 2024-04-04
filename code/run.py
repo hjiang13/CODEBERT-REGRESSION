@@ -229,7 +229,7 @@ def test(args, model, tokenizer):
     # Note that DistributedSampler samples randomly
     eval_dataset = TextDataset(tokenizer, args,args.test_data_file)
     eval_sampler = SequentialSampler(eval_dataset)
-    eval_dataloader = DataLoader(eval_dataset, sampler=eval_sampler, batch_size=args.eval_batch_size)
+    eval_dataloader = DataLoader(eval_dataset, sampler=eval_sampler, batch_size=args.eval_batch_size，num_workers=4,pin_memory=True)
 
     # Eval!
     logger.info("***** Running Test *****")
@@ -244,13 +244,27 @@ def test(args, model, tokenizer):
         inputs = batch[0].to(args.device)        
         label=batch[1].to(args.device) 
         with torch.no_grad():
-            logit = model(inputs)
+            lm_loss,logit = model(inputs,label)
+            eval_loss += lm_loss.mean().item()
             logits.append(logit.cpu().numpy())
             labels.append(label.cpu().numpy())
+        nb_eval_steps += 1
 
     logits=np.concatenate(logits,0)
     labels=np.concatenate(labels,0)
     preds=logits.argmax(-1)
+    P_acc_sum = 0
+    for i in range(len(labels)):
+        P_acc_sum += 1 - abs(labels[i] - preds[i]) 
+        eval_acc = P_acc_sum/len(labels)
+        eval_loss = eval_loss / nb_eval_steps
+        perplexity = torch.tensor(eval_loss)
+            
+    result = {
+        "eval_loss": float(perplexity),
+        "eval_acc":round(eval_acc,4),
+    }
+    return result
     for i in range(len(preds)):
         logger.info(f"{preds[i]}, {labels[i]}")    
     with open(os.path.join(args.output_dir,"predictions.txt"),'w') as f:

@@ -133,7 +133,7 @@ def train(args, train_dataset, model, tokenizer):
     for idx in range(args.num_train_epochs): 
         bar = tqdm(train_dataloader,total=len(train_dataloader))
         losses=[]
-        #logger.info("Hailong: begin to integrate")
+        logger.info("Hailong: begin to integrate")
         for step, batch in enumerate(bar):
             inputs = batch[0].to(args.device)        
             labels=batch[1].to(args.device) 

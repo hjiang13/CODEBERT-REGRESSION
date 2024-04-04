@@ -105,8 +105,8 @@ def train(args, train_dataset, model, tokenizer):
     train_sampler = RandomSampler(train_dataset)
     
     train_dataloader = DataLoader(train_dataset, sampler=train_sampler, 
-                                  batch_size=args.train_batch_size,num_workers=2,pin_memory=True)
-    
+                                  batch_size=args.train_batch_size,num_workers=0,pin_memory=True)
+
 
     
     # Prepare optimizer and schedule (linear warmup and decay)
@@ -132,8 +132,6 @@ def train(args, train_dataset, model, tokenizer):
  
     for idx in range(args.num_train_epochs): 
         bar = tqdm(train_dataloader,total=len(train_dataloader))
-        for i in bar:
-            print (bar.n)
         losses=[]
         logger.info("Hailong: begin to integrate")
         for step, batch in enumerate(bar):

@@ -229,7 +229,7 @@ def test(args, model, tokenizer):
     # Note that DistributedSampler samples randomly
     eval_dataset = TextDataset(tokenizer, args,args.test_data_file)
     eval_sampler = SequentialSampler(eval_dataset)
-    eval_dataloader = DataLoader(eval_dataset, sampler=eval_sampler, batch_size=args.eval_batch_size, num_workers=4,pin_memory=True)
+    eval_dataloader = DataLoader(eval_dataset, sampler=eval_sampler,batch_size=args.eval_batch_size, num_workers=2,pin_memory=True)
 
     # Eval!
     logger.info("***** Running Test *****")
@@ -241,7 +241,8 @@ def test(args, model, tokenizer):
     logits=[]   
     labels=[]
     for batch in tqdm(eval_dataloader,total=len(eval_dataloader)):
-        inputs = batch[0].to(args.device)        
+        inputs = batch[0].to(args.device)
+        logger(f"The code is: {inputs}")        
         label=batch[1].to(args.device) 
         with torch.no_grad():
             lm_loss,logit = model(inputs,label)

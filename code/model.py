@@ -7,6 +7,9 @@ from torch.autograd import Variable
 import copy
 import torch.nn.functional as F
 from torch.nn import CrossEntropyLoss, MSELoss
+
+from transformers import (WEIGHTS_NAME, AdamW, get_linear_schedule_with_warmup,
+                          RobertaConfig, RobertaForSequenceClassification, RobertaTokenizer)
 import logging
     
 logger = logging.getLogger(__name__)    
@@ -17,7 +20,7 @@ class Model(nn.Module):
         self.config=config
         self.tokenizer=tokenizer
         self.args=args
-        self.bert = self
+        self.bert = RobertaConfig.from_pretrained("neulab/codebert-cpp")
         self.regressor = nn.Sequential(
             nn.Linear(self.bert.config.hidden_size, 1),
             nn.Sigmoid()

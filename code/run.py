@@ -218,6 +218,7 @@ def evaluate(args, model, tokenizer):
     #eval_acc=np.mean(labels==preds)
     P_acc_sum = 0
     for i in range(len(labels)):
+        logger.info(f"{labels[i]}, {preds[i]} \n")
         P_acc_sum += 1 - abs(labels[i] - preds[i]) 
     eval_acc = P_acc_sum/len(labels)
     eval_loss = eval_loss / nb_eval_steps

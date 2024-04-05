@@ -9,7 +9,7 @@ python run.py \
     --test_data_file=../dataset/SDC_test_resilience_r.jsonl \
     --num_train_epochs 1 \
     --block_size 256 \
-    --train_batch_size 4 \
+    --train_batch_size 1 \
     --eval_batch_size 1 \
     --learning_rate 2e-5 \
     --max_grad_norm 1.0 \

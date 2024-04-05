@@ -341,9 +341,10 @@ def main():
     config.num_labels=1
     config.problem_type = "regression" # can run a regression model using float target values and num_labels=1 in a classification head
     tokenizer = RobertaTokenizer.from_pretrained(args.tokenizer_name)
-    model = RobertaForSequenceClassification.from_pretrained(args.model_name_or_path,config=config)    
+    model = RobertaForSequenceClassification.from_pretrained(args.model_name_or_path, num_labels=1)    
 
     model=Model(model,config,tokenizer,args)
+    logger.info(f"Hailong: the tokenizer is: {tokenizer}")
 
     # multi-gpu training (should be after apex fp16 initialization)
     model.to(args.device)

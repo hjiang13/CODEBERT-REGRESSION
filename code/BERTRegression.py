@@ -5,6 +5,7 @@ from transformers import BertTokenizer, BertModel, AdamW
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 from torch import nn
+import json
 
 from transformers import (WEIGHTS_NAME, AdamW, get_linear_schedule_with_warmup,
                           RobertaConfig, RobertaForSequenceClassification, RobertaTokenizer)
@@ -14,12 +15,40 @@ from transformers import (WEIGHTS_NAME, AdamW, get_linear_schedule_with_warmup,
 #    "code": ["I love this movie!", "This book is amazing.", "The weather today is terrible."],
 #    "label": [0.8, 0.9, 0.2]
 #})
+trainDataPath = "../dataset/benign_train_resilience_r.jsonl"
+evalDataPath = "../dataset/benign_test_resilience_r.jsonl"
+train_data = pd.DataFrame( {"code": [], "label": []}) 
+val_data = pd.DataFrame( columns=['code', 'label'])
+
+with open(trainDataPath, "r") as data_file:
+
+    for line in data_file:
+        line = json.loads(line)
+        print(line["code"] + "\n" )
+        print(line["label"])
+        lineList= [[line["code"], line["label"]]]
+        df_line = pd.DataFrame(lineList, columns=['code', 'label'])
+        train_data = pd.concat([train_data, df_line])
+
+with open(evalDataPath, "r") as data_file:
+
+    for line in data_file:
+        line = json.loads(line)
+        print(line["code"] + "\n" )
+        print(line["label"])
+        lineList= [[line["code"], line["label"]]]
+        df_line = pd.DataFrame(lineList, columns=['code', 'label'])
+        val_data = pd.concat([val_data, df_line])
+
+
+# for code, label in train_data_temp:
+#    train_data["code"].append()
 
 data = pd.read_json("../dataset/SDC_train_resilience_r.jsonl")
 
 # define a datasets
 class SentimentDataset(Dataset):
-    def __init__(self, codes, labels, tokenizer, max_len=512):
+    def __init__(self, codes, labels, tokenizer, max_len=4096):
         self.codes = codes
         self.labels = labels
         self.tokenizer = tokenizer
@@ -54,7 +83,7 @@ class SentimentDataset(Dataset):
 tokenizer = RobertaTokenizer.from_pretrained("neulab/codebert-cpp")
 
 # Prepare the dataset
-train_data, val_data = train_test_split(data, test_size=0.1)
+#train_data, val_data = train_test_split(data, test_size=0.1)
 train_dataset = SentimentDataset(train_data['code'].to_numpy(), train_data['label'].to_numpy(), tokenizer)
 val_dataset = SentimentDataset(val_data['code'].to_numpy(), val_data['label'].to_numpy(), tokenizer)
 
@@ -84,7 +113,7 @@ loss_fn = nn.MSELoss()
 
 # Train the model
 model.train()
-for epoch in range(1):  # To be changed
+for epoch in range(5):  # To be changed
     for batch in train_loader:
         optimizer.zero_grad()
         input_ids = batch['input_ids']

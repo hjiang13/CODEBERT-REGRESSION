@@ -140,9 +140,11 @@ def train(args, train_dataset, model, tokenizer):
             inputs = batch[0].to(args.device) 
             logger.info("Hailong: loading label")       
             labels= batch[1].to(args.device)
-            model.train()
+            logger.info(f"Hailong: input[0] is : {inputs[0]} \n")
+            logger.info(f"Hailong: label[0] is : {labels[0]} \n")
+            model.train() #set the mode to train
             loss,logits = model(inputs,labels)
-
+            logger.info(f"Hailong: loss is : {loss.item()} \n")
             if args.n_gpu > 1:
                 loss = loss.mean()  # mean() to average on multi-gpu parallel training
 

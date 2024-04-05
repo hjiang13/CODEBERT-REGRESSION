@@ -17,6 +17,12 @@ class Model(nn.Module):
         self.config=config
         self.tokenizer=tokenizer
         self.args=args
+        self.bert = self
+        self.regressor = nn.Sequential(
+            nn.Linear(self.bert.config.hidden_size, 1),
+            nn.Sigmoid()
+        )
+
     
         
     def forward(self, input_ids=None,labels=None): 

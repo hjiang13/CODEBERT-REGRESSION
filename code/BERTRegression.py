@@ -6,6 +6,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 from torch import nn
 
+from transformers import (WEIGHTS_NAME, AdamW, get_linear_schedule_with_warmup,
+                          RobertaConfig, RobertaForSequenceClassification, RobertaTokenizer)
+
 # Load the data
 data = pd.DataFrame({
     "text": ["I love this movie!", "This book is amazing.", "The weather today is terrible."],
@@ -46,7 +49,7 @@ class SentimentDataset(Dataset):
         }
 
 # Initialize tokenizer
-tokenizer = BertTokenizer.from_pretrained('neulab/codebert-cpp')
+tokenizer = RobertaTokenizer.from_pretrained("neulab/codebert-cpp")
 
 # Prepare the dataset
 train_data, val_data = train_test_split(data, test_size=0.1)

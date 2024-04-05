@@ -34,8 +34,6 @@ with open(evalDataPath, "r") as data_file:
 
     for line in data_file:
         line = json.loads(line)
-        print(line["code"] + "\n" )
-        print(line["label"])
         lineList= [[line["code"], line["label"]]]
         df_line = pd.DataFrame(lineList, columns=['code', 'label'])
         val_data = pd.concat([val_data, df_line])

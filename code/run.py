@@ -345,7 +345,6 @@ def main():
 
     model=Model(model,config,tokenizer,args)
     logger.info(f"Hailong: the tokenizer is: {tokenizer}")
-
     # multi-gpu training (should be after apex fp16 initialization)
     model.to(args.device)
     if args.n_gpu > 1:

@@ -7,7 +7,7 @@ python run.py \
     --train_data_file=../dataset/SDC_train_resilience_r.jsonl \
     --eval_data_file=../dataset/SDC_test_resilience_r.jsonl \
     --test_data_file=../dataset/SDC_test_resilience_r.jsonl \
-    --num_train_epochs 5 \
+    --num_train_epochs 1 \
     --block_size 256 \
     --train_batch_size 4 \
     --eval_batch_size 1 \

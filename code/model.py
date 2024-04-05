@@ -24,7 +24,8 @@ class Model(nn.Module):
         logger.info(f"Hailong: the shape of input_ids is : " +str(input_ids.size()) + "\n")
         logits=self.encoder(input_ids,attention_mask=input_ids.ne(1))[0]
         logger.info("Hailong: the logits : " + str(logits))
-        prob=torch.softmax(logits,-1)
+        #prob=torch.softmax(logits,-1)
+        prob = logits
         logger.info("Hailong: the probs : " + str(prob))
         #logger.info( prob) 
         if labels is not None:

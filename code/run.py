@@ -137,7 +137,8 @@ def train(args, train_dataset, model, tokenizer):
         logger.info("Hailong: begin to integrate")
         for step, batch in enumerate(bar):
             logger.info("Hailong: loading data")
-            inputs = batch[0].to(args.device) 
+            inputs = batch[0].to(args.device)
+            logger.info(f"Hailong: the shape of inputs is : " +str(inputs.size()) + "\n") 
             logger.info("Hailong: loading label")       
             labels= batch[1].to(args.device)
             logger.info(f"Hailong: input[0] is : {inputs[0]} \n")
@@ -328,6 +329,7 @@ def main():
 
     args = parser.parse_args()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    logger.info(f"Hailong: the device in arg is : " +str(device) + "\n")
     args.n_gpu = torch.cuda.device_count()
     
     args.device = device

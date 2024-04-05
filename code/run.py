@@ -130,7 +130,7 @@ def train(args, train_dataset, model, tokenizer):
     logger.info("  Total optimization steps = %d", max_steps)
     best_acc=0.0
     model.zero_grad()
- 
+    model.train() #set the mode to train
     for idx in range(args.num_train_epochs): 
         bar = tqdm(train_dataloader,total=len(train_dataloader))
         losses=[]
@@ -144,7 +144,7 @@ def train(args, train_dataset, model, tokenizer):
             logger.info(f"Hailong: input[0] is : {inputs[0]} \n")
             logger.info(f"Hailong: label[0] is : {labels[0]} \n")
             logger.info(f"Hailong: the shape of input[0] is : " +str(inputs[0].size()) + "\n")
-            model.train() #set the mode to train
+
             loss,logits = model(inputs,labels)
             logger.info(f"Hailong: loss is : {loss.item()} \n")
             if args.n_gpu > 1:

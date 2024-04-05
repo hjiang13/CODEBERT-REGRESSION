@@ -10,10 +10,12 @@ from transformers import (WEIGHTS_NAME, AdamW, get_linear_schedule_with_warmup,
                           RobertaConfig, RobertaForSequenceClassification, RobertaTokenizer)
 
 # Load the data
-data = pd.DataFrame({
-    "text": ["I love this movie!", "This book is amazing.", "The weather today is terrible."],
-    "label": [0.8, 0.9, 0.2]
-})
+#data = pd.DataFrame({
+#    "text": ["I love this movie!", "This book is amazing.", "The weather today is terrible."],
+#    "label": [0.8, 0.9, 0.2]
+#})
+
+data = pd.read_json("../dataset/SDC_train_resilience_r.jsonl")
 
 # define a datasets
 class SentimentDataset(Dataset):

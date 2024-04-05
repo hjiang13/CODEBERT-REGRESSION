@@ -6,13 +6,13 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 from torch import nn
 
-# 加载数据
+# Load the data
 data = pd.DataFrame({
     "text": ["I love this movie!", "This book is amazing.", "The weather today is terrible."],
     "label": [0.8, 0.9, 0.2]
 })
 
-# 定义数据集
+# define a datasets
 class SentimentDataset(Dataset):
     def __init__(self, texts, labels, tokenizer, max_len=512):
         self.texts = texts
@@ -45,10 +45,10 @@ class SentimentDataset(Dataset):
             'labels': torch.tensor(label, dtype=torch.float)
         }
 
-# 初始化tokenizer
-tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+# Initialize tokenizer
+tokenizer = BertTokenizer.from_pretrained('neulab/codebert-cpp')
 
-# 准备数据集
+# Prepare the dataset
 train_data, val_data = train_test_split(data, test_size=0.1)
 train_dataset = SentimentDataset(train_data['text'].to_numpy(), train_data['label'].to_numpy(), tokenizer)
 val_dataset = SentimentDataset(val_data['text'].to_numpy(), val_data['label'].to_numpy(), tokenizer)
@@ -56,11 +56,11 @@ val_dataset = SentimentDataset(val_data['text'].to_numpy(), val_data['label'].to
 train_loader = DataLoader(train_dataset, batch_size=2, shuffle=True)
 val_loader = DataLoader(val_dataset, batch_size=1)
 
-# 定义BERT回归模型
+# Define a regression model on BERT
 class BertRegressor(nn.Module):
     def __init__(self):
         super(BertRegressor, self).__init__()
-        self.bert = BertModel.from_pretrained('bert-base-uncased')
+        self.bert = BertModel.from_pretrained('neulab/codebert-cpp')
         self.regressor = nn.Sequential(
             nn.Linear(self.bert.config.hidden_size, 1),
             nn.Sigmoid()
@@ -73,13 +73,13 @@ class BertRegressor(nn.Module):
 
 model = BertRegressor()
 
-# 定义优化器和损失函数
+# Def optimizer and loss function
 optimizer = AdamW(model.parameters(), lr=2e-5)
 loss_fn = nn.MSELoss()
 
-# 训练模型
+# Train the model
 model.train()
-for epoch in range(1):  # 这里的epoch数仅为示例，根据实际情况调整
+for epoch in range(1):  # To be changed
     for batch in train_loader:
         optimizer.zero_grad()
         input_ids = batch['input_ids']
@@ -91,7 +91,7 @@ for epoch in range(1):  # 这里的epoch数仅为示例，根据实际情况调�
         optimizer.step()
     print(f"Epoch {epoch}, Loss: {loss.item()}")
 
-# 简化的评估和预测步骤（根据需要实现完整的评估逻辑）
+# Evaluation
 model.eval()
 for batch in val_loader:
     with torch.no_grad():

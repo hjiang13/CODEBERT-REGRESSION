@@ -25,6 +25,7 @@ class Model(nn.Module):
         logits=self.encoder(input_ids,attention_mask=input_ids.ne(1))[0]
         logger.info("Hailong: the logits : " + str(logits))
         prob=torch.softmax(logits,-1)
+        logger.info("Hailong: the probs : " + str(prob))
         #logger.info( prob) 
         if labels is not None:
             loss_fct = nn.MSELoss()

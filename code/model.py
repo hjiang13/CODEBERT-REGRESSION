@@ -20,6 +20,8 @@ class Model(nn.Module):
     
         
     def forward(self, input_ids=None,labels=None): 
+        logger.info("Hailong: the input_ids : " + str(input_ids))
+        logger.info(f"Hailong: the shape of input_ids is : " +str(input_ids.size()) + "\n")
         logits=self.encoder(input_ids,attention_mask=input_ids.ne(1))[0]
         logger.info("Hailong: the logits : " + str(logits))
         prob=torch.softmax(logits,-1)

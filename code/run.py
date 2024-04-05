@@ -142,6 +142,7 @@ def train(args, train_dataset, model, tokenizer):
             labels= batch[1].to(args.device)
             logger.info(f"Hailong: input[0] is : {inputs[0]} \n")
             logger.info(f"Hailong: label[0] is : {labels[0]} \n")
+            logger.info(f"Hailong: the shape of input[0] is : " +str(inputs[0].size()) + "\n")
             model.train() #set the mode to train
             loss,logits = model(inputs,labels)
             logger.info(f"Hailong: loss is : {loss.item()} \n")

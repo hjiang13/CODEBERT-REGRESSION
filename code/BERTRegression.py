@@ -11,7 +11,7 @@ from transformers import (WEIGHTS_NAME, AdamW, get_linear_schedule_with_warmup,
 
 # Load the data
 #data = pd.DataFrame({
-#    "text": ["I love this movie!", "This book is amazing.", "The weather today is terrible."],
+#    "code": ["I love this movie!", "This book is amazing.", "The weather today is terrible."],
 #    "label": [0.8, 0.9, 0.2]
 #})
 
@@ -19,21 +19,21 @@ data = pd.read_json("../dataset/SDC_train_resilience_r.jsonl")
 
 # define a datasets
 class SentimentDataset(Dataset):
-    def __init__(self, texts, labels, tokenizer, max_len=512):
-        self.texts = texts
+    def __init__(self, codes, labels, tokenizer, max_len=512):
+        self.codes = codes
         self.labels = labels
         self.tokenizer = tokenizer
         self.max_len = max_len
     
     def __len__(self):
-        return len(self.texts)
+        return len(self.codes)
     
     def __getitem__(self, item):
-        text = str(self.texts[item])
+        code = str(self.codes[item])
         label = self.labels[item]
 
         encoding = self.tokenizer.encode_plus(
-            text,
+            code,
             add_special_tokens=True,
             max_length=self.max_len,
             return_token_type_ids=False,
@@ -44,7 +44,7 @@ class SentimentDataset(Dataset):
         )
 
         return {
-            'text': text,
+            'code': code,
             'input_ids': encoding['input_ids'].flatten(),
             'attention_mask': encoding['attention_mask'].flatten(),
             'labels': torch.tensor(label, dtype=torch.float)
@@ -55,8 +55,8 @@ tokenizer = RobertaTokenizer.from_pretrained("neulab/codebert-cpp")
 
 # Prepare the dataset
 train_data, val_data = train_test_split(data, test_size=0.1)
-train_dataset = SentimentDataset(train_data['text'].to_numpy(), train_data['label'].to_numpy(), tokenizer)
-val_dataset = SentimentDataset(val_data['text'].to_numpy(), val_data['label'].to_numpy(), tokenizer)
+train_dataset = SentimentDataset(train_data['code'].to_numpy(), train_data['label'].to_numpy(), tokenizer)
+val_dataset = SentimentDataset(val_data['code'].to_numpy(), val_data['label'].to_numpy(), tokenizer)
 
 train_loader = DataLoader(train_dataset, batch_size=2, shuffle=True)
 val_loader = DataLoader(val_dataset, batch_size=1)

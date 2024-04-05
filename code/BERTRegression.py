@@ -48,7 +48,7 @@ data = pd.read_json("../dataset/SDC_train_resilience_r.jsonl")
 
 # define a datasets
 class SentimentDataset(Dataset):
-    def __init__(self, codes, labels, tokenizer, max_len=4096):
+    def __init__(self, codes, labels, tokenizer, max_len=256):
         self.codes = codes
         self.labels = labels
         self.tokenizer = tokenizer

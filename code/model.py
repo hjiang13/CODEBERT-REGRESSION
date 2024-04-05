@@ -20,7 +20,7 @@ class Model(nn.Module):
         self.config=config
         self.tokenizer=tokenizer
         self.args=args
-        self.bert = RobertaConfig.from_pretrained("neulab/codebert-cpp")
+        self.bert = RobertaForSequenceClassification.from_pretrained("neulab/codebert-cpp")
         self.regressor = nn.Sequential(
             nn.Linear(self.bert.config.hidden_size, 1),
             nn.Sigmoid()

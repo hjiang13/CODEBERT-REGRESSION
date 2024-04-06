@@ -25,8 +25,6 @@ with open(trainDataPath, "r") as data_file:
     i = 0
     for line in data_file:
         line = json.loads(line)
-        print(line["code"] + "\n" )
-        print(line["label"])
         lineList= [[line["code"], line["label"]]]
         df_line = pd.DataFrame(lineList, columns=['code', 'label'])
         train_data = pd.concat([train_data, df_line])

@@ -48,7 +48,7 @@ with open(evalDataPath, "r") as data_file:
 
 # define a datasets
 class SentimentDataset(Dataset):
-    def __init__(self, codes, labels, tokenizer, max_len=32768):
+    def __init__(self, codes, labels, tokenizer, max_len=4096):
         self.codes = codes
         self.labels = labels
         self.tokenizer = tokenizer

@@ -9,6 +9,7 @@ import json
 
 from transformers import (WEIGHTS_NAME, AdamW, get_linear_schedule_with_warmup,
                           RobertaConfig, RobertaForSequenceClassification, RobertaTokenizer)
+from transformers import LongformerConfig, LongformerModel
 
 # Load the data
 #data = pd.DataFrame({
@@ -39,10 +40,7 @@ with open(evalDataPath, "r") as data_file:
         val_data = pd.concat([val_data, df_line])
 
 
-# for code, label in train_data_temp:
-#    train_data["code"].append()
-
-data = pd.read_json("../dataset/SDC_train_resilience_r.jsonl")
+#data = pd.read_json("../dataset/SDC_train_resilience_r.jsonl")
 
 # define a datasets
 class SentimentDataset(Dataset):
@@ -92,7 +90,7 @@ val_loader = DataLoader(val_dataset, batch_size=1)
 class BertRegressor(nn.Module):
     def __init__(self):
         super(BertRegressor, self).__init__()
-        self.bert = BertModel.from_pretrained('neulab/codebert-cpp')
+        self.bert = BertModel.from_pretrained('allenai/longformer-base-4096', num_labels=1)
         self.regressor = nn.Sequential(
             nn.Linear(self.bert.config.hidden_size, 1),
             nn.Sigmoid()
@@ -111,7 +109,7 @@ loss_fn = nn.MSELoss()
 
 # Train the model
 model.train()
-for epoch in range(5):  # To be changed
+for epoch in range(1):  # To be changed
     for batch in train_loader:
         optimizer.zero_grad()
         input_ids = batch['input_ids']

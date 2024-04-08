@@ -43,35 +43,34 @@ with open(evalDataPath, "r") as data_file:
 #data = pd.read_json("../dataset/SDC_train_resilience_r.jsonl")
 
 # define a datasets
-class SentimentDataset(Dataset):
-    def __init__(self, codes, labels, tokenizer, max_len=512):
-        self.codes = codes
+class TextSegmentationDataset(Dataset):
+    def __init__(self, texts, labels, tokenizer, max_token_len=512, chunk_size=510):
+        self.texts = texts
         self.labels = labels
         self.tokenizer = tokenizer
-        self.max_len = max_len
-    
-    def __len__(self):
-        return len(self.codes)
-    
-    def __getitem__(self, item):
-        code = str(self.codes[item])
-        label = self.labels[item]
+        self.max_token_len = max_token_len
+        self.chunk_size = chunk_size
 
-        encoding = self.tokenizer.encode_plus(
-            code,
-            add_special_tokens=True,
-            max_length=self.max_len,
-            return_token_type_ids=False,
-            padding='max_length',
-            return_attention_mask=True,
-            return_tensors='pt',
-            truncation=True
-        )
+    def __len__(self):
+        return len(self.texts)
+
+    def __getitem__(self, idx):
+        text = self.texts[idx]
+        label = self.labels[idx]
+        tokens = self.tokenizer.encode_plus(text, max_length=self.max_token_len, 
+                                             truncation=True, padding='max_length',
+                                             add_special_tokens=True, return_tensors="pt")
+        input_ids = tokens['input_ids'].squeeze()
+        attention_mask = tokens['attention_mask'].squeeze()
+
+        # Segmenting the input_ids & attention_mask
+        total_chunks = len(input_ids) // self.chunk_size
+        input_ids_chunks = input_ids.unfold(0, self.chunk_size, self.chunk_size)[:total_chunks]
+        attention_mask_chunks = attention_mask.unfold(0, self.chunk_size, self.chunk_size)[:total_chunks]
 
         return {
-            'code': code,
-            'input_ids': encoding['input_ids'].flatten(),
-            'attention_mask': encoding['attention_mask'].flatten(),
+            'input_ids': input_ids_chunks,
+            'attention_mask': attention_mask_chunks,
             'labels': torch.tensor(label, dtype=torch.float)
         }
 

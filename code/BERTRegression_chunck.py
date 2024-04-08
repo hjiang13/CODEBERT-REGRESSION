@@ -15,7 +15,7 @@ from transformers import LongformerConfig, LongformerModel
 trainDataPath = "../dataset/benign_train_resilience_r.jsonl"
 evalDataPath = "../dataset/benign_test_resilience_r.jsonl"
 train_data = pd.DataFrame( {"code": [], "label": []}) 
-val_data = pd.DataFrame( columns=['code', 'label'])
+eval_data = pd.DataFrame( columns=['code', 'label'])
 
 with open(trainDataPath, "r") as data_file:
     i = 0
@@ -34,7 +34,7 @@ with open(evalDataPath, "r") as data_file:
         line = json.loads(line)
         lineList= [[line["code"], line["label"]]]
         df_line = pd.DataFrame(lineList, columns=['code', 'label'])
-        val_data = pd.concat([val_data, df_line])
+        eval_data = pd.concat([eval_data, df_line])
         i += 1
         if i > 5:
             break
@@ -86,12 +86,12 @@ valChunkPool = []
 
 
 
-#train_data, val_data = train_test_split(data, test_size=0.1)
+#train_data, eval_data = train_test_split(data, test_size=0.1)
 train_dataset = SentimentDataset(train_data['code'].to_numpy(), train_data['label'].to_numpy(), tokenizer)
-val_dataset = SentimentDataset(val_data['code'].to_numpy(), val_data['label'].to_numpy(), tokenizer)
+eval_dataset = SentimentDataset(eval_data['code'].to_numpy(), eval_data['label'].to_numpy(), tokenizer)
 
 train_loader = DataLoader(train_dataset, batch_size=2, shuffle=True)
-val_loader = DataLoader(val_dataset, batch_size=1)
+val_loader = DataLoader(eval_dataset, batch_size=1)
 
 # Define a regression model on BERT
 class BertRegressor(nn.Module):

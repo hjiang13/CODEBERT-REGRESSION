@@ -43,7 +43,7 @@ with open(evalDataPath, "r") as data_file:
 #data = pd.read_json("../dataset/SDC_train_resilience_r.jsonl")
 
 # define a datasets
-class TextSegmentationDataset(Dataset):
+class SentimentDataset(Dataset):
     def __init__(self, texts, labels, tokenizer, max_token_len=512, chunk_size=510):
         self.texts = texts
         self.labels = labels

@@ -78,13 +78,6 @@ class SentimentDataset(Dataset):
 # Initialize tokenizer
 tokenizer = RobertaTokenizer.from_pretrained("neulab/codebert-cpp")
 
-# Prepare the dataset
-# split code into chuncks
-trainChunkPool = []
-valChunkPool = []
-
-
-
 
 #train_data, eval_data = train_test_split(data, test_size=0.1)
 train_dataset = SentimentDataset(train_data['code'].to_numpy(), train_data['label'].to_numpy(), tokenizer)
@@ -104,8 +97,22 @@ class BertRegressor(nn.Module):
         )
     
     def forward(self, input_ids, attention_mask):
-        outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
-        pooled_output = outputs.pooler_output
+        # To check if the size is larger than max_length
+        if input_ids.size(1) > 512:  # 假设batch_size在第一维
+            all_embeddings = []
+            step_size = 512
+            for i in range(0, input_ids.size(1), step_size):
+                chunk_input_ids = input_ids[:, i:i+step_size]
+                chunk_attention_mask = attention_mask[:, i:i+step_size]
+                chunk_outputs = self.bert(input_ids=chunk_input_ids, attention_mask=chunk_attention_mask)
+                chunk_embeddings = chunk_outputs.pooler_output
+                all_embeddings.append(chunk_embeddings)
+            
+            # 计算所有chunks embeddings的平均值
+            pooled_output = torch.mean(torch.stack(all_embeddings, dim=0), dim=0)
+        else:        
+            outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
+            pooled_output = outputs.pooler_output
         return self.regressor(pooled_output)
 
 model = BertRegressor()

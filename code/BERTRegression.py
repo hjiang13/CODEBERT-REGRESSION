@@ -6,6 +6,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 from torch import nn
 import json
+import os
 
 from transformers import (WEIGHTS_NAME, AdamW, get_linear_schedule_with_warmup,
                           RobertaConfig, RobertaForSequenceClassification, RobertaTokenizer)
@@ -113,6 +114,7 @@ loss_fn = nn.MSELoss()
 
 # Train the model
 model.train()
+best_acc = 0.0
 for epoch in range(1):  # To be changed
     for batch in train_loader:
         optimizer.zero_grad()
@@ -121,9 +123,25 @@ for epoch in range(1):  # To be changed
         labels = batch['labels']
         outputs = model(input_ids=input_ids, attention_mask=attention_mask)
         loss = loss_fn(outputs.squeeze(), labels)
-        loss.backward()
-        optimizer.step()
+    P_acc_sum = 0
+    for i in range(len(labels)):
+        P_acc_sum += 1 - abs(labels[i] - outputs[i]) 
+        eval_acc = P_acc_sum/len(labels)
+    loss.backward()
+    optimizer.step()
+    if eval_acc > best_acc:
+        best_acc = eval_acc
+        checkpoint_prefix = 'checkpoint-best-acc'
+        output_dir = os.path.join("BERTRegression", '{}'.format(checkpoint_prefix)) 
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)      
+        model_to_save = model.module if hasattr(model,'module') else model
+        output_dir = os.path.join(output_dir, '{}'.format('model.bin')) 
+        torch.save(model_to_save.state_dict(), output_dir)
     print(f"Epoch {epoch}, Loss: {loss.item()}")
+
+
+
 
 # Evaluation
 model.eval()
@@ -131,5 +149,8 @@ for batch in val_loader:
     with torch.no_grad():
         input_ids = batch['input_ids']
         attention_mask = batch['attention_mask']
+        checkpoint_prefix = 'checkpoint-best-acc/model.bin'
+        output_dir = os.path.join("BERTRegression", '{}'.format(checkpoint_prefix))  
+        model.load_state_dict(torch.load(output_dir))        
         outputs = model(input_ids=input_ids, attention_mask=attention_mask)
         print(f"Predicted label: {outputs.squeeze().item()}, Actual label: {batch['labels'].item()}")

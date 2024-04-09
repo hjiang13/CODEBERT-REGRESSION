@@ -127,7 +127,8 @@ loss_fn = nn.MSELoss()
 
 # Train the model
 model.train()
-for epoch in range(10):  # To be changed
+best_acc = 0.0
+for epoch in range(5):  # To be changed
     for batch in train_loader:
         optimizer.zero_grad()
         input_ids = batch['input_ids']

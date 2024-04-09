@@ -125,8 +125,8 @@ for epoch in range(5):  # To be changed
         labels = batch['labels']
         outputs = model(input_ids=input_ids, attention_mask=attention_mask)
         loss = loss_fn(outputs.squeeze(), labels)
-        prediction_list.append(outputs.squeeze().item())
-        label_list.append(batch['labels'].item())
+        prediction_list.append(outputs.squeeze())
+        label_list.append(batch['labels'])
     P_acc_sum = 0
     for i in range(len(label_list)):
         P_acc_sum += 1 - abs(prediction_list[i] - label_list[i])/label_list[i]

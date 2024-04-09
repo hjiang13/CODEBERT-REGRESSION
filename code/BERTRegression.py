@@ -130,7 +130,7 @@ for epoch in range(5):  # To be changed
     P_acc_sum = 0
     for i in range(len(label_list)) and label_list[i] !=0 :
         P_acc_sum += 1 - abs(prediction_list[i] - label_list[i])/label_list[i]
-    eval_acc = P_acc_sum/len(labels)
+    eval_acc = P_acc_sum/len(label_list)
     loss.backward()
     optimizer.step()
     if eval_acc > best_acc:
@@ -167,6 +167,6 @@ for batch in val_loader:
 P_acc_sum = 0
 for i in range(len(prediction_list)) and label_list[i] !=0:
     P_acc_sum += 1 - abs(prediction_list[i] - label_list[i]) /label_list[i]
-eval_acc = P_acc_sum/len(labels)
+eval_acc = P_acc_sum/len(label_list)
 print(f"Prediction accuracy from BERTRegression is : {eval_acc}")
     

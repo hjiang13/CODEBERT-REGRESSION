@@ -128,7 +128,7 @@ for epoch in range(5):  # To be changed
         prediction_list.append(outputs.squeeze())
         label_list.append(batch['labels'])
     P_acc_sum = 0
-    for i in range(len(label_list)) and label_list[i] !=0 :
+    for i in range(len(label_list)) :
         P_acc_sum += 1 - abs(prediction_list[i] - label_list[i])/label_list[i]
     eval_acc = P_acc_sum/len(label_list)
     loss.backward()

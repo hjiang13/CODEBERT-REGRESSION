@@ -116,6 +116,8 @@ loss_fn = nn.MSELoss()
 model.train()
 best_acc = 0.0
 for epoch in range(5):  # To be changed
+    prediction_list = []
+    label_list = []
     for batch in train_loader:
         optimizer.zero_grad()
         input_ids = batch['input_ids']
@@ -123,9 +125,11 @@ for epoch in range(5):  # To be changed
         labels = batch['labels']
         outputs = model(input_ids=input_ids, attention_mask=attention_mask)
         loss = loss_fn(outputs.squeeze(), labels)
+        prediction_list.append(outputs.squeeze().item())
+        label_list.append(batch['labels'].item())
     P_acc_sum = 0
-    for i in range(len(labels)):
-        P_acc_sum += 1 - abs(labels[i] - outputs[i]) 
+    for i in range(len(label_list)):
+        P_acc_sum += 1 - abs(prediction_list[i] - label_list[i])/label_list[i]
     eval_acc = P_acc_sum/len(labels)
     loss.backward()
     optimizer.step()
@@ -162,7 +166,7 @@ for batch in val_loader:
         label_list.append(batch['labels'].item())
 P_acc_sum = 0
 for i in range(len(prediction_list)):
-    P_acc_sum += 1 - abs(prediction_list[i] - label_list[i]) 
+    P_acc_sum += 1 - abs(prediction_list[i] - label_list[i]) /label_list[i]
 eval_acc = P_acc_sum/len(labels)
 print(f"Prediction accuracy from BERTRegression is : {eval_acc}")
     

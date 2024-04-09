@@ -92,8 +92,12 @@ class BertRegressor(nn.Module):
         super(BertRegressor, self).__init__()
         self.bert = BertModel.from_pretrained('neulab/codebert-cpp', num_labels=1)
         self.regressor = nn.Sequential(
-            nn.Linear(self.bert.config.hidden_size, 1),
-            nn.Sigmoid()
+            nn.Linear(self.bert.config.hidden_size, 512), # Increase dimensions
+            nn.ReLU(), # Changed to ReLU for intermediate layers
+            nn.Dropout(0.1), # Added dropout for regularization
+            nn.Linear(512, 128),
+            nn.ReLU(), # Using ReLU again
+            nn.Linear(128, 1) # No activation function here to allow any range of output values
         )
     
     def forward(self, input_ids, attention_mask):
@@ -123,7 +127,7 @@ loss_fn = nn.MSELoss()
 
 # Train the model
 model.train()
-for epoch in range(5):  # To be changed
+for epoch in range(10):  # To be changed
     for batch in train_loader:
         optimizer.zero_grad()
         input_ids = batch['input_ids']
@@ -134,7 +138,14 @@ for epoch in range(5):  # To be changed
         loss.backward()
         optimizer.step()
     print(f"Epoch {epoch}, Loss: {loss.item()}")
+    
+from torch.optim.lr_scheduler import StepLR
 
+# After optimizer definition
+scheduler = StepLR(optimizer, step_size=10, gamma=0.1) # Example parameters
+
+# In your training loop, after optimizer.step()
+scheduler.step()
 # Evaluation
 model.eval()
 for batch in val_loader:

@@ -30,8 +30,8 @@ with open(trainDataPath, "r") as data_file:
         df_line = pd.DataFrame(lineList, columns=['code', 'label'])
         train_data = pd.concat([train_data, df_line])
         i += 1
-        if i > 5:
-            break
+        #if i > 5:
+        #    break
 
 with open(evalDataPath, "r") as data_file:
     i = 0
@@ -41,8 +41,8 @@ with open(evalDataPath, "r") as data_file:
         df_line = pd.DataFrame(lineList, columns=['code', 'label'])
         val_data = pd.concat([val_data, df_line])
         i += 1
-        if i > 5:
-            break
+        #if i > 5:
+        #    break
 
 
 #data = pd.read_json("../dataset/SDC_train_resilience_r.jsonl")

@@ -126,7 +126,7 @@ for epoch in range(5):  # To be changed
     P_acc_sum = 0
     for i in range(len(labels)):
         P_acc_sum += 1 - abs(labels[i] - outputs[i]) 
-        eval_acc = P_acc_sum/len(labels)
+    eval_acc = P_acc_sum/len(labels)
     loss.backward()
     optimizer.step()
     if eval_acc > best_acc:
@@ -138,13 +138,16 @@ for epoch in range(5):  # To be changed
         model_to_save = model.module if hasattr(model,'module') else model
         output_dir = os.path.join(output_dir, '{}'.format('model.bin')) 
         torch.save(model_to_save.state_dict(), output_dir)
-    print(f"Epoch {epoch}, Loss: {loss.item()}")
+    print(f"Epoch {epoch}, Loss: {loss.item()} \n")
+    print(f"Best acc {best_acc}, Epoch: {epoch} \n")
 
 
 
 
 # Evaluation
 model.eval()
+prediction_list = []
+label_list = []
 for batch in val_loader:
     with torch.no_grad():
         input_ids = batch['input_ids']
@@ -154,3 +157,12 @@ for batch in val_loader:
         model.load_state_dict(torch.load(output_dir))        
         outputs = model(input_ids=input_ids, attention_mask=attention_mask)
         print(f"Predicted label: {outputs.squeeze().item()}, Actual label: {batch['labels'].item()}")
+
+        prediction_list.append(outputs.squeeze().item())
+        label_list.append(batch['labels'].item())
+P_acc_sum = 0
+for i in range(len(prediction_list)):
+    P_acc_sum += 1 - abs(prediction_list[i] - label_list[i]) 
+eval_acc = P_acc_sum/len(labels)
+print(f"Prediction accuracy from BERTRegression is : {eval_acc}")
+    

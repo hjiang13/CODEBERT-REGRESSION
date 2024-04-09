@@ -133,7 +133,7 @@ for epoch in range(5):  # To be changed
     eval_acc = P_acc_sum/len(label_list)
     loss.backward()
     optimizer.step()
-    if eval_acc > best_acc:
+    if True:
         best_acc = eval_acc
         checkpoint_prefix = 'checkpoint-best-acc'
         output_dir = os.path.join("BERTRegression", '{}'.format(checkpoint_prefix)) 

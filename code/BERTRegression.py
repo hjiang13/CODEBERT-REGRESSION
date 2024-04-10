@@ -100,7 +100,7 @@ class BertRegressor(nn.Module):
             nn.Linear(self.bert.config.hidden_size, 512), # Increase dimensions
             nn.ReLU(), # Changed to ReLU for intermediate layers
             nn.Dropout(0.1), # Added dropout for regularization
-            nn.Linear(256, 128),
+            nn.Linear(512, 128),
             nn.ReLU(), # Using ReLU again
             nn.Linear(128, 1) # No activation function here to allow any range of output values
         )

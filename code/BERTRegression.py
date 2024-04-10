@@ -88,7 +88,7 @@ tokenizer = RobertaTokenizer.from_pretrained("neulab/codebert-cpp")
 train_dataset = SentimentDataset(train_data['code'].to_numpy(), train_data['label'].to_numpy(), tokenizer)
 val_dataset = SentimentDataset(val_data['code'].to_numpy(), val_data['label'].to_numpy(), tokenizer)
 
-train_loader = DataLoader(train_dataset, batch_size=2, shuffle=True)
+train_loader = DataLoader(train_dataset, batch_size=1, shuffle=True)
 val_loader = DataLoader(val_dataset, batch_size=1)
 
 # Define a regression model on BERT
@@ -141,8 +141,8 @@ for epoch in range(5):  # To be changed
         batch_accuracy = batch_accuracy.sum().item() / labels.size(0)  # Average accuracy per sample
         batch_samples = labels.size(0)
 
-    total_accuracy += batch_accuracy * batch_samples
-    total_samples += batch_samples
+        total_accuracy += batch_accuracy * batch_samples
+        total_samples += batch_samples
 
     # Calculate overall accuracy
     accuracy = total_accuracy / total_samples

@@ -140,9 +140,9 @@ for epoch in range(5):  # To be changed
     label_list = []
     for batch in train_loader:
         optimizer.zero_grad()
-        input_ids = batch['input_ids']
+        input_ids = batch['input_ids'].to(device)
         attention_mask = batch['attention_mask']
-        labels = batch['labels']
+        labels = batch['labels'].to(device)
         outputs = model(input_ids=input_ids, attention_mask=attention_mask)
         loss = loss_fn(outputs.squeeze(), labels)
         prediction_list.append(outputs.squeeze())
@@ -179,7 +179,7 @@ label_list = []
 model.eval()
 for batch in val_loader:
     with torch.no_grad():
-        input_ids = batch['input_ids']
+        input_ids = batch['input_ids'].to(device)
         attention_mask = batch['attention_mask']
         checkpoint_prefix = 'checkpoint-best-acc/model.bin'
         output_dir = os.path.join("BERTRegression_chunck_mean", '{}'.format(checkpoint_prefix))  

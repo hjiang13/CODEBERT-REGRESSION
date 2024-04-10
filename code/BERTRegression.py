@@ -98,11 +98,11 @@ class BertRegressor(nn.Module):
         self.bert = BertModel.from_pretrained('neulab/codebert-cpp', num_labels=1)
         self.regressor = nn.Sequential(
             nn.Linear(self.bert.config.hidden_size, 512), # Increase dimensions
-            nn.ReLU(), # Changed to ReLU for intermediate layers
-            nn.Dropout(0.1), # Added dropout for regularization
-            nn.Linear(512, 128),
-            nn.ReLU(), # Using ReLU again
-            nn.Linear(128, 1) # No activation function here to allow any range of output values
+            #nn.ReLU(), # Changed to ReLU for intermediate layers
+            #nn.Dropout(0.1), # Added dropout for regularization
+            #nn.Linear(512, 128),
+            #nn.ReLU(), # Using ReLU again
+            #nn.Linear(128, 1) # No activation function here to allow any range of output values
         )
     
     def forward(self, input_ids, attention_mask):
@@ -119,7 +119,7 @@ loss_fn = nn.MSELoss()
 # Train the model
 model.train()
 best_acc = 0.0
-for epoch in range(10):  # To be changed
+for epoch in range(5):  # To be changed
     prediction_list = []
     label_list = []
     for batch in train_loader:

@@ -232,7 +232,7 @@ def evaluate(args, model, tokenizer):
             logits.append(logit.cpu().numpy())
             labels.append(label.cpu().numpy())
         nb_eval_steps += 1
-    preds=logits.argmax(-1)
+    preds=logits
     P_acc_sum = 0
     for i in range(len(labels)):
         logger.info(f"{labels[i]}, {preds[i]} \n")

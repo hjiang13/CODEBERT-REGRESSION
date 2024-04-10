@@ -134,13 +134,21 @@ for epoch in range(5):  # To be changed
         label_list.append(batch['labels'])
         loss.backward()
         optimizer.step()
-    P_acc_sum = 0
-    for i in range(len(label_list)) :
-        P_acc_sum += 1 - abs(prediction_list[i] - label_list[i])/label_list[i]
-    eval_acc = P_acc_sum/len(label_list)
+        # Calculate accuracy for this batch
+        batch_accuracy = 1 - torch.abs(outputs.squeeze() - labels) / labels
+        batch_accuracy = batch_accuracy.sum().item() / labels.size(0)  # Average accuracy per sample
+        batch_samples = labels.size(0)
+
+        total_accuracy += batch_accuracy * batch_samples
+        total_samples += batch_samples
+
+    # Calculate overall accuracy
+    accuracy = total_accuracy / total_samples
+    print("Accuracy:", accuracy)
     
-    if True:
-        best_acc = eval_acc
+    
+    if (accuracy > best_acc):
+        best_acc = accuracy
         checkpoint_prefix = 'checkpoint-best-acc'
         output_dir = os.path.join("BERTRegression", '{}'.format(checkpoint_prefix)) 
         if not os.path.exists(output_dir):
@@ -168,10 +176,15 @@ for batch in val_loader:
 
         prediction_list.append(outputs.squeeze().item())
         label_list.append(batch['labels'].item())
-P_acc_sum = 0
-for i in range(len(prediction_list)) :
-    if label_list[i] !=0 :
-        P_acc_sum += 1 - abs(prediction_list[i] - label_list[i]) /label_list[i]
-eval_acc = P_acc_sum/len(label_list)
-print(f"Prediction accuracy from BERTRegression is : {eval_acc}")
+        # Calculate accuracy for this batch
+        batch_accuracy = 1 - torch.abs(outputs.squeeze() - labels) / labels
+        batch_accuracy = batch_accuracy.sum().item() / labels.size(0)  # Average accuracy per sample
+        batch_samples = labels.size(0)
+    
+        total_accuracy += batch_accuracy * batch_samples
+        total_samples += batch_samples
+
+# Calculate overall accuracy
+accuracy = total_accuracy / total_samples
+print("Accuracy:", accuracy)
     

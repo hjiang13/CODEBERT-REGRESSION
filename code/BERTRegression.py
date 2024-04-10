@@ -117,6 +117,8 @@ model = BertRegressor()
 optimizer = AdamW(model.parameters(), lr=2e-5)
 loss_fn = nn.MSELoss()
 
+total_accuracy = 0
+total_samples = 0
 # Train the model
 model.train()
 best_acc = 0.0
@@ -164,6 +166,8 @@ for epoch in range(5):  # To be changed
 model.eval()
 prediction_list = []
 label_list = []
+total_accuracy = 0
+total_samples = 0
 for batch in val_loader:
     with torch.no_grad():
         input_ids = batch['input_ids']

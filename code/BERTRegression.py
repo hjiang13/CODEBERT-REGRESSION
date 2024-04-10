@@ -141,8 +141,8 @@ for epoch in range(5):  # To be changed
         batch_accuracy = batch_accuracy.sum().item() / labels.size(0)  # Average accuracy per sample
         batch_samples = labels.size(0)
 
-        total_accuracy += batch_accuracy * batch_samples
-        total_samples += batch_samples
+    total_accuracy += batch_accuracy * batch_samples
+    total_samples += batch_samples
 
     # Calculate overall accuracy
     accuracy = total_accuracy / total_samples

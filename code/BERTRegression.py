@@ -119,7 +119,7 @@ loss_fn = nn.MSELoss()
 # Train the model
 model.train()
 best_acc = 0.0
-for epoch in range(5):  # To be changed
+for epoch in range(10):  # To be changed
     prediction_list = []
     label_list = []
     for batch in train_loader:

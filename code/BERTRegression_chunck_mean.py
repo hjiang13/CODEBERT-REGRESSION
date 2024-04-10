@@ -6,6 +6,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 from torch import nn
 import json
+import os
 
 from transformers import (WEIGHTS_NAME, AdamW, get_linear_schedule_with_warmup,
                           RobertaConfig, RobertaForSequenceClassification, RobertaTokenizer)
@@ -129,6 +130,8 @@ loss_fn = nn.MSELoss()
 model.train()
 best_acc = 0.0
 for epoch in range(5):  # To be changed
+    prediction_list = []
+    label_list = []
     for batch in train_loader:
         optimizer.zero_grad()
         input_ids = batch['input_ids']
@@ -136,9 +139,26 @@ for epoch in range(5):  # To be changed
         labels = batch['labels']
         outputs = model(input_ids=input_ids, attention_mask=attention_mask)
         loss = loss_fn(outputs.squeeze(), labels)
+        prediction_list.append(outputs.squeeze())
+        label_list.append(batch['labels'])
         loss.backward()
         optimizer.step()
     print(f"Epoch {epoch}, Loss: {loss.item()}")
+    P_acc_sum = 0
+    for i in range(len(label_list)) :
+        P_acc_sum += 1 - abs(prediction_list[i] - label_list[i])/label_list[i]
+    eval_acc = P_acc_sum/len(label_list)
+    if True:
+        best_acc = eval_acc
+        checkpoint_prefix = 'checkpoint-best-acc'
+        output_dir = os.path.join("BERTRegression_chunck_mean", '{}'.format(checkpoint_prefix)) 
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)      
+        model_to_save = model.module if hasattr(model,'module') else model
+        output_dir = os.path.join(output_dir, '{}'.format('model.bin')) 
+        torch.save(model_to_save.state_dict(), output_dir)
+    print(f"Epoch {epoch}, Loss: {loss.item()} \n")
+    print(f"Best acc {best_acc}, Epoch: {epoch} \n")
     
 from torch.optim.lr_scheduler import StepLR
 
@@ -147,11 +167,25 @@ scheduler = StepLR(optimizer, step_size=10, gamma=0.1) # Example parameters
 
 # In your training loop, after optimizer.step()
 scheduler.step()
+prediction_list = []
+label_list = []
 # Evaluation
 model.eval()
 for batch in val_loader:
     with torch.no_grad():
         input_ids = batch['input_ids']
         attention_mask = batch['attention_mask']
+        checkpoint_prefix = 'checkpoint-best-acc/model.bin'
+        output_dir = os.path.join("BERTRegression_chunck_mean", '{}'.format(checkpoint_prefix))  
+        model.load_state_dict(torch.load(output_dir)) 
         outputs = model(input_ids=input_ids, attention_mask=attention_mask)
         print(f"Predicted label: {outputs.squeeze().item()}, Actual label: {batch['labels'].item()}")
+        prediction_list.append(outputs.squeeze().item())
+        label_list.append(batch['labels'].item())
+P_acc_sum = 0
+for i in range(len(prediction_list)) :
+    if label_list[i] !=0 :
+        P_acc_sum += 1 - abs(prediction_list[i] - label_list[i]) /label_list[i]
+eval_acc = P_acc_sum/len(label_list)
+print(f"Prediction accuracy from BERTRegression_chunck_mean is : {eval_acc}")
+    

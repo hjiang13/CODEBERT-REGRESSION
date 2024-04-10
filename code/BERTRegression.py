@@ -131,12 +131,13 @@ for epoch in range(5):  # To be changed
         loss = loss_fn(outputs.squeeze(), labels)
         prediction_list.append(outputs.squeeze())
         label_list.append(batch['labels'])
+        loss.backward()
+        optimizer.step()
     P_acc_sum = 0
     for i in range(len(label_list)) :
         P_acc_sum += 1 - abs(prediction_list[i] - label_list[i])/label_list[i]
     eval_acc = P_acc_sum/len(label_list)
-    loss.backward()
-    optimizer.step()
+    
     if True:
         best_acc = eval_acc
         checkpoint_prefix = 'checkpoint-best-acc'
@@ -148,8 +149,6 @@ for epoch in range(5):  # To be changed
         torch.save(model_to_save.state_dict(), output_dir)
     print(f"Epoch {epoch}, Loss: {loss.item()} \n")
     print(f"Best acc {best_acc}, Epoch: {epoch} \n")
-
-
 
 
 # Evaluation

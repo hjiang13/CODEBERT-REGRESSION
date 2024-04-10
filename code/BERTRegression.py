@@ -49,7 +49,7 @@ with open(evalDataPath, "r") as data_file:
 
 # define a datasets
 class SentimentDataset(Dataset):
-    def __init__(self, codes, labels, tokenizer, max_len=256):
+    def __init__(self, codes, labels, tokenizer, max_len=512):
         self.codes = codes
         self.labels = labels
         self.tokenizer = tokenizer
@@ -95,7 +95,7 @@ val_loader = DataLoader(val_dataset, batch_size=1)
 class BertRegressor(nn.Module):
     def __init__(self):
         super(BertRegressor, self).__init__()
-        self.bert = BertModel.from_pretrained('allenai/longformer-base-4096', num_labels=1)
+        self.bert = BertModel.from_pretrained('neulab/codebert-cpp', num_labels=1)
         self.regressor = nn.Sequential(
             nn.Linear(self.bert.config.hidden_size, 512), # Increase dimensions
             nn.ReLU(), # Changed to ReLU for intermediate layers

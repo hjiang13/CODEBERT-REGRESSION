@@ -126,6 +126,11 @@ model = BertRegressor()
 optimizer = AdamW(model.parameters(), lr=2e-5)
 loss_fn = nn.MSELoss()
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+n_gpu = torch.cuda.device_count()
+if n_gpu > 1:
+    model = torch.nn.DataParallel(model)
+    
 # Train the model
 model.train()
 best_acc = 0.0

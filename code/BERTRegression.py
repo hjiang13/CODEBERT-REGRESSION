@@ -97,7 +97,8 @@ class BertRegressor(nn.Module):
         super(BertRegressor, self).__init__()
         self.bert = BertModel.from_pretrained('neulab/codebert-cpp', num_labels=1)
         self.regressor = nn.Sequential(
-            nn.Linear(self.bert.config.hidden_size, 512), # Increase dimensions
+            nn.Linear(self.bert.config.hidden_size, 1), 
+            nn.Sigmoid()
             #nn.ReLU(), # Changed to ReLU for intermediate layers
             #nn.Dropout(0.1), # Added dropout for regularization
             #nn.Linear(512, 128),

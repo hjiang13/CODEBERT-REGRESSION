@@ -116,7 +116,7 @@ class BertRegressor(nn.Module):
 model = BertRegressor()
 
 # Def optimizer and loss function
-optimizer = AdamW(model.parameters(), lr=2e-4)
+optimizer = AdamW(model.parameters(), lr= 1e-5)
 loss_fn = nn.MSELoss()
 
 # Train the model

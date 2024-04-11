@@ -92,24 +92,25 @@ train_loader = DataLoader(train_dataset, batch_size=1, shuffle=True)
 val_loader = DataLoader(val_dataset, batch_size=1)
 
 # Define a regression model on BERT
+# Define a regression model on BERT
 class BertRegressor(nn.Module):
     def __init__(self):
         super(BertRegressor, self).__init__()
         self.bert = BertModel.from_pretrained('neulab/codebert-cpp', num_labels=1)
         self.regressor = nn.Sequential(
-            nn.Linear(self.bert.config.hidden_size, 1), 
-            nn.Sigmoid()
-            #nn.ReLU(), # Changed to ReLU for intermediate layers
-            #nn.Dropout(0.1), # Added dropout for regularization
-            #nn.Linear(512, 128),
-            #nn.ReLU(), # Using ReLU again
-            #nn.Linear(128, 1) # No activation function here to allow any range of output values
+            nn.Linear(self.bert.config.hidden_size, 512), 
+            nn.ReLU(), # Changed to ReLU for intermediate layers
+            nn.Dropout(0.1), # Added dropout for regularization
+            nn.Linear(512, 128),
+            nn.ReLU(), # Using ReLU again
+            nn.Linear(128, 1) # No activation function here to allow any range of output values
         )
     
     def forward(self, input_ids, attention_mask):
         outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
         pooled_output = outputs.pooler_output
-        return self.regressor(pooled_output)
+        # Apply sigmoid activation function to squash the output to the range [0, 1]
+        return F.sigmoid(self.regressor(pooled_output))
 
 model = BertRegressor()
 
@@ -121,8 +122,10 @@ total_accuracy = 0
 total_samples = 0
 # Train the model
 model.train()
-best_acc = 0.0
-for epoch in range(5):  # To be changed
+best_acc = -10
+for epoch in range(10):  # To be changed
+    total_accuracy = 0
+    total_samples = 0
     prediction_list = []
     label_list = []
     for batch in train_loader:
@@ -137,11 +140,17 @@ for epoch in range(5):  # To be changed
         loss.backward()
         optimizer.step()
         # Calculate accuracy for this batch
-        batch_accuracy = 1 - torch.abs(outputs.squeeze() - labels) / labels
-        batch_accuracy = batch_accuracy.sum().item() / labels.size(0)  # Average accuracy per sample
+        batch_accuracy = torch.abs(outputs.squeeze() - labels)
+        mask = labels != 0  # Create a mask where label value is not equal to 0
+        batch_accuracy[mask] = 1 - batch_accuracy[mask] / labels[mask]  # Calculate accuracy for non-zero labels
+        batch_accuracy[~mask] = 0  # Set accuracy to 0 where label value is 0
+        batch_samples = labels.size(0)
+        
+        batch_accuracy = batch_accuracy.mean().item()  # Average accuracy per sample
         batch_samples = labels.size(0)
 
         total_accuracy += batch_accuracy * batch_samples
+
         total_samples += batch_samples
 
     # Calculate overall accuracy
@@ -161,8 +170,23 @@ for epoch in range(5):  # To be changed
     print(f"Epoch {epoch}, Loss: {loss.item()} \n")
     print(f"Best acc {best_acc}, Epoch: {epoch} \n")
 
+    
+    
+    if (accuracy > best_acc):
+        best_acc = accuracy
+        checkpoint_prefix = 'checkpoint-best-acc'
+        output_dir = os.path.join("BERTRegression", '{}'.format(checkpoint_prefix)) 
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)      
+        model_to_save = model.module if hasattr(model,'module') else model
+        output_dir = os.path.join(output_dir, '{}'.format('model.bin')) 
+        torch.save(model_to_save.state_dict(), output_dir)
+    print(f"Epoch {epoch}, Loss: {loss.item()} \n")
+    print(f"Best acc {best_acc}, Epoch: {epoch} \n")
+
 
 # Evaluation
+model.load_state_dict(torch.load(output_dir))
 model.eval()
 prediction_list = []
 label_list = []
@@ -172,16 +196,23 @@ for batch in val_loader:
     with torch.no_grad():
         input_ids = batch['input_ids']
         attention_mask = batch['attention_mask']
-        checkpoint_prefix = 'checkpoint-best-acc/model.bin'
-        output_dir = os.path.join("BERTRegression", '{}'.format(checkpoint_prefix))  
-        model.load_state_dict(torch.load(output_dir))        
-        outputs = model(input_ids=input_ids, attention_mask=attention_mask)
-        print(f"Predicted label: {outputs.squeeze().item()}, Actual label: {batch['labels'].item()}")
+        labels = batch['labels']  # Get labels from batch
 
+        # Forward pass
+        outputs = model(input_ids=input_ids, attention_mask=attention_mask)
+        
+        # Print predicted and actual labels for debugging
+        print(f"Predicted label: {outputs.squeeze().item()}, Actual label: {labels.item()}")
+
+        # Append predictions and labels
         prediction_list.append(outputs.squeeze().item())
-        label_list.append(batch['labels'].item())
+        label_list.append(labels.item())
+
         # Calculate accuracy for this batch
-        batch_accuracy = 1 - torch.abs(outputs.squeeze() - labels) / labels
+        batch_accuracy = torch.abs(outputs.squeeze() - labels)
+        mask = labels != 0  # Create a mask where label value is not equal to 0
+        batch_accuracy[mask] = 1 - batch_accuracy[mask] / labels[mask]
+        batch_accuracy[~mask] = 0  # Set accuracy to 0 where label value is 0
         batch_accuracy = batch_accuracy.sum().item() / labels.size(0)  # Average accuracy per sample
         batch_samples = labels.size(0)
     

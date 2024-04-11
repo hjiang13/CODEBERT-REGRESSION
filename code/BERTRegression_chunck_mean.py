@@ -175,6 +175,7 @@ scheduler = StepLR(optimizer, step_size=10, gamma=0.1) # Example parameters
 scheduler.step()
 prediction_list = []
 label_list = []
+model.load_state_dict(torch.load(output_dir))
 # Evaluation
 model.eval()
 for batch in val_loader:

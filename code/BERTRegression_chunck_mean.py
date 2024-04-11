@@ -7,6 +7,7 @@ from sklearn.metrics import mean_squared_error
 from torch import nn
 import json
 import os
+import torch.nn.functional as F
 
 from transformers import (WEIGHTS_NAME, AdamW, get_linear_schedule_with_warmup,
                           RobertaConfig, RobertaForSequenceClassification, RobertaTokenizer)
@@ -118,7 +119,7 @@ class BertRegressor(nn.Module):
         else:        
             outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
             pooled_output = outputs.pooler_output
-        return self.regressor(pooled_output)
+        return F.sigmoid(self.regressor(pooled_output))
 
 model = BertRegressor()
 
@@ -126,11 +127,6 @@ model = BertRegressor()
 optimizer = AdamW(model.parameters(), lr=2e-5)
 loss_fn = nn.MSELoss()
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-n_gpu = torch.cuda.device_count()
-model.to(device)
-if n_gpu > 1:
-    model = torch.nn.DataParallel(model)
 
 # Train the model
 model.train()

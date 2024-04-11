@@ -118,8 +118,7 @@ model = BertRegressor()
 optimizer = AdamW(model.parameters(), lr=2e-5)
 loss_fn = nn.MSELoss()
 
-total_accuracy = 0
-total_samples = 0
+
 # Train the model
 model.train()
 best_acc = -10

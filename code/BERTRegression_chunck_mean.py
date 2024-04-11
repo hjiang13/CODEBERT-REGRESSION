@@ -134,30 +134,46 @@ if n_gpu > 1:
 
 # Train the model
 model.train()
-best_acc = 0.0
-for epoch in range(5):  # To be changed
+best_acc = -10
+for epoch in range(10):  # To be changed
+    total_accuracy = 0
+    total_samples = 0
     prediction_list = []
     label_list = []
     for batch in train_loader:
         optimizer.zero_grad()
-        input_ids = batch['input_ids'].to(device)
+        input_ids = batch['input_ids']
         attention_mask = batch['attention_mask']
-        labels = batch['labels'].to(device)
-        outputs = model(input_ids=input_ids, attention_mask=attention_mask).to(device)
+        labels = batch['labels']
+        outputs = model(input_ids=input_ids, attention_mask=attention_mask)
         loss = loss_fn(outputs.squeeze(), labels)
         prediction_list.append(outputs.squeeze())
         label_list.append(batch['labels'])
         loss.backward()
         optimizer.step()
-    print(f"Epoch {epoch}, Loss: {loss.item()}")
-    P_acc_sum = 0
-    for i in range(len(label_list)) :
-        P_acc_sum += 1 - abs(prediction_list[i] - label_list[i])/label_list[i]
-    eval_acc = P_acc_sum/len(label_list)
-    if True:
-        best_acc = eval_acc
+        # Calculate accuracy for this batch
+        batch_accuracy = torch.abs(outputs.squeeze() - labels)
+        mask = labels != 0  # Create a mask where label value is not equal to 0
+        batch_accuracy[mask] = 1 - batch_accuracy[mask] / labels[mask]  # Calculate accuracy for non-zero labels
+        batch_accuracy[~mask] = 0  # Set accuracy to 0 where label value is 0
+        batch_samples = labels.size(0)
+        
+        batch_accuracy = batch_accuracy.mean().item()  # Average accuracy per sample
+        batch_samples = labels.size(0)
+
+        total_accuracy += batch_accuracy * batch_samples
+
+        total_samples += batch_samples
+
+    # Calculate overall accuracy
+    accuracy = total_accuracy / total_samples
+    print("Accuracy:", accuracy)
+    
+    
+    if (accuracy > best_acc):
+        best_acc = accuracy
         checkpoint_prefix = 'checkpoint-best-acc'
-        output_dir = os.path.join("BERTRegression_chunck_mean", '{}'.format(checkpoint_prefix)) 
+        output_dir = os.path.join("BERTRegression", '{}'.format(checkpoint_prefix)) 
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)      
         model_to_save = model.module if hasattr(model,'module') else model
@@ -165,34 +181,57 @@ for epoch in range(5):  # To be changed
         torch.save(model_to_save.state_dict(), output_dir)
     print(f"Epoch {epoch}, Loss: {loss.item()} \n")
     print(f"Best acc {best_acc}, Epoch: {epoch} \n")
+
     
-from torch.optim.lr_scheduler import StepLR
+    
+    if (accuracy > best_acc):
+        best_acc = accuracy
+        checkpoint_prefix = 'checkpoint-best-acc'
+        output_dir = os.path.join("BERTRegression", '{}'.format(checkpoint_prefix)) 
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)      
+        model_to_save = model.module if hasattr(model,'module') else model
+        output_dir = os.path.join(output_dir, '{}'.format('model.bin')) 
+        torch.save(model_to_save.state_dict(), output_dir)
+    print(f"Epoch {epoch}, Loss: {loss.item()} \n")
+    print(f"Best acc {best_acc}, Epoch: {epoch} \n")
 
-# After optimizer definition
-scheduler = StepLR(optimizer, step_size=10, gamma=0.1) # Example parameters
 
-# In your training loop, after optimizer.step()
-scheduler.step()
+# Evaluation
+model.load_state_dict(torch.load(output_dir))
+model.eval()
 prediction_list = []
 label_list = []
-model.load_state_dict(torch.load(output_dir))
-# Evaluation
-model.eval()
+total_accuracy = 0
+total_samples = 0
 for batch in val_loader:
     with torch.no_grad():
-        input_ids = batch['input_ids'].to(device)
+        input_ids = batch['input_ids']
         attention_mask = batch['attention_mask']
-        checkpoint_prefix = 'checkpoint-best-acc/model.bin'
-        output_dir = os.path.join("BERTRegression_chunck_mean", '{}'.format(checkpoint_prefix))  
-        model.load_state_dict(torch.load(output_dir)) 
-        outputs = model(input_ids=input_ids, attention_mask=attention_mask).to(device)
-        print(f"Predicted label: {outputs.squeeze().item()}, Actual label: {batch['labels'].item()}")
+        labels = batch['labels']  # Get labels from batch
+
+        # Forward pass
+        outputs = model(input_ids=input_ids, attention_mask=attention_mask)
+        
+        # Print predicted and actual labels for debugging
+        print(f"Predicted label: {outputs.squeeze().item()}, Actual label: {labels.item()}")
+
+        # Append predictions and labels
         prediction_list.append(outputs.squeeze().item())
-        label_list.append(batch['labels'].item())
-P_acc_sum = 0
-for i in range(len(prediction_list)) :
-    if label_list[i] !=0 :
-        P_acc_sum += 1 - abs(prediction_list[i] - label_list[i]) /label_list[i]
-eval_acc = P_acc_sum/len(label_list)
-print(f"Prediction accuracy from BERTRegression_chunck_mean is : {eval_acc}")
+        label_list.append(labels.item())
+
+        # Calculate accuracy for this batch
+        batch_accuracy = torch.abs(outputs.squeeze() - labels)
+        mask = labels != 0  # Create a mask where label value is not equal to 0
+        batch_accuracy[mask] = 1 - batch_accuracy[mask] / labels[mask]
+        batch_accuracy[~mask] = 0  # Set accuracy to 0 where label value is 0
+        batch_accuracy = batch_accuracy.sum().item() / labels.size(0)  # Average accuracy per sample
+        batch_samples = labels.size(0)
+    
+        total_accuracy += batch_accuracy * batch_samples
+        total_samples += batch_samples
+
+# Calculate overall accuracy
+accuracy = total_accuracy / total_samples
+print("Accuracy:", accuracy)
     

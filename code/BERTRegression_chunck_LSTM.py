@@ -6,6 +6,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 from torch import nn
 import json
+import os
+import torch.nn.functional as F
 
 from transformers import (WEIGHTS_NAME, AdamW, get_linear_schedule_with_warmup,
                           RobertaConfig, RobertaForSequenceClassification, RobertaTokenizer)
@@ -83,11 +85,11 @@ train_dataset = SentimentDataset(train_data['code'].to_numpy(), train_data['labe
 eval_dataset = SentimentDataset(eval_data['code'].to_numpy(), eval_data['label'].to_numpy(), tokenizer)
 
 train_loader = DataLoader(train_dataset, batch_size=2, shuffle=True)
-val_loader = DataLoader(eval_dataset, batch_size=1)
+eval_loader = DataLoader(eval_dataset, batch_size=1)
 
 # Define a regression model on BERT
 class BertRegressor(nn.Module):
-    def __init__(self, bert_model="neulab/codebert-cpp", lstm_hidden_size=256, output_size=1):
+    def __init__(self, bert_model="neulab/codebert-cpp", lstm_hidden_size=512, output_size=1):
         super().__init__()
         self.bert = BertModel.from_pretrained(bert_model)
         self.lstm = nn.LSTM(self.bert.config.hidden_size, lstm_hidden_size, batch_first=True)
@@ -129,13 +131,49 @@ for epoch in range(5):  # To be changed
         loss = loss_fn(outputs.squeeze(), labels)
         loss.backward()
         optimizer.step()
+    checkpoint_prefix = 'checkpoint-best-acc'
+    output_dir = os.path.join("BERTRegression", '{}'.format(checkpoint_prefix)) 
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)      
+    model_to_save = model.module if hasattr(model,'module') else model
+    output_dir = os.path.join(output_dir, '{}'.format('model.bin')) 
+    torch.save(model_to_save.state_dict(), output_dir)
     print(f"Epoch {epoch}, Loss: {loss.item()}")
 
 # Evaluation
+model.load_state_dict(torch.load(output_dir))
 model.eval()
+prediction_list = []
+label_list = []
+total_accuracy = 0
+total_samples = 0
 for batch in val_loader:
     with torch.no_grad():
         input_ids = batch['input_ids']
         attention_mask = batch['attention_mask']
+        labels = batch['labels']  # Get labels from batch
+
+        # Forward pass
         outputs = model(input_ids=input_ids, attention_mask=attention_mask)
-        print(f"Predicted label: {outputs.squeeze().item()}, Actual label: {batch['labels'].item()}")
+        
+        # Print predicted and actual labels for debugging
+        print(f"Predicted label: {outputs.squeeze().item()}, Actual label: {labels.item()}")
+
+        # Append predictions and labels
+        prediction_list.append(outputs.squeeze().item())
+        label_list.append(labels.item())
+
+        # Calculate accuracy for this batch
+        batch_accuracy = torch.abs(outputs.squeeze() - labels)
+        mask = labels != 0  # Create a mask where label value is not equal to 0
+        batch_accuracy[mask] = 1 - batch_accuracy[mask] / labels[mask]
+        batch_accuracy[~mask] = 0  # Set accuracy to 0 where label value is 0
+        batch_accuracy = batch_accuracy.sum().item() / labels.size(0)  # Average accuracy per sample
+        batch_samples = labels.size(0)
+    
+        total_accuracy += batch_accuracy * batch_samples
+        total_samples += batch_samples
+
+# Calculate overall accuracy
+accuracy = total_accuracy / total_samples
+print("Accuracy:", accuracy)

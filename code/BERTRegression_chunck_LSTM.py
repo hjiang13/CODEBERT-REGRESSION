@@ -111,7 +111,7 @@ class BertRegressor(nn.Module):
         _, (hidden, _) = self.lstm(cls_embeddings)
 
         # Regression
-        return self.regressor(hidden.squeeze(0))
+        return F.sigmoid(self.regressor(hidden.squeeze(0)))
 
 model = BertRegressor()
 

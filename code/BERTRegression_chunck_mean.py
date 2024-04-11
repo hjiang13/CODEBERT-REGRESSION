@@ -178,20 +178,6 @@ for epoch in range(10):  # To be changed
     print(f"Epoch {epoch}, Loss: {loss.item()} \n")
     print(f"Best acc {best_acc}, Epoch: {epoch} \n")
 
-    
-    
-    if (accuracy > best_acc):
-        best_acc = accuracy
-        checkpoint_prefix = 'checkpoint-best-acc'
-        output_dir = os.path.join("BERTRegression", '{}'.format(checkpoint_prefix)) 
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)      
-        model_to_save = model.module if hasattr(model,'module') else model
-        output_dir = os.path.join(output_dir, '{}'.format('model.bin')) 
-        torch.save(model_to_save.state_dict(), output_dir)
-    print(f"Epoch {epoch}, Loss: {loss.item()} \n")
-    print(f"Best acc {best_acc}, Epoch: {epoch} \n")
-
 
 # Evaluation
 model.load_state_dict(torch.load(output_dir))

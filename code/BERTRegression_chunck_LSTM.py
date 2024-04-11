@@ -147,7 +147,7 @@ prediction_list = []
 label_list = []
 total_accuracy = 0
 total_samples = 0
-for batch in val_loader:
+for batch in eval_loader:
     with torch.no_grad():
         input_ids = batch['input_ids']
         attention_mask = batch['attention_mask']

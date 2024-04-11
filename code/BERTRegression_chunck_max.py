@@ -166,7 +166,7 @@ for epoch in range(10):  # To be changed
     print("Accuracy:", accuracy)
     
     
-    if (accuracy > best_acc):
+    if (True):
         best_acc = accuracy
         checkpoint_prefix = 'checkpoint-best-acc'
         output_dir = os.path.join("BERTRegression", '{}'.format(checkpoint_prefix)) 

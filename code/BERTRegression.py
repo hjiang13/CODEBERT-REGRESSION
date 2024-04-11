@@ -18,8 +18,8 @@ from transformers import LongformerConfig, LongformerModel
 #    "code": ["I love this movie!", "This book is amazing.", "The weather today is terrible."],
 #    "label": [0.8, 0.9, 0.2]
 #})
-trainDataPath = "../dataset/SDC_train_resilience_r.jsonl"
-evalDataPath = "../dataset/SDC_test_resilience_r.jsonl"
+trainDataPath = "../dataset/benign_train_resilience_r.jsonl"
+evalDataPath = "../dataset/benign_test_resilience_r.jsonl"
 train_data = pd.DataFrame( {"code": [], "label": []}) 
 val_data = pd.DataFrame( columns=['code', 'label'])
 
@@ -46,7 +46,7 @@ with open(evalDataPath, "r") as data_file:
         #    break
 
 
-#data = pd.read_json("../dataset/SDC_train_resilience_r.jsonl")
+#data = pd.read_json("../dataset/benign_train_resilience_r.jsonl")
 
 # define a datasets
 class SentimentDataset(Dataset):

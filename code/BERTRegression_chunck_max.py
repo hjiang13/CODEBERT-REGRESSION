@@ -6,6 +6,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 from torch import nn
 import json
+import os
+import torch.nn.functional as F
 
 from transformers import (WEIGHTS_NAME, AdamW, get_linear_schedule_with_warmup,
                           RobertaConfig, RobertaForSequenceClassification, RobertaTokenizer)
@@ -44,7 +46,7 @@ with open(evalDataPath, "r") as data_file:
 
 # define a datasets
 class SentimentDataset(Dataset):
-    def __init__(self, codes, labels, tokenizer, max_len=512):
+    def __init__(self, codes, labels, tokenizer, max_len=256):
         self.codes = codes
         self.labels = labels
         self.tokenizer = tokenizer
@@ -117,7 +119,7 @@ class BertRegressor(nn.Module):
         else:        
             outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
             pooled_output = outputs.pooler_output
-        return self.regressor(pooled_output)
+        return F.sigmoid(self.regressor(pooled_output))
 
 model = BertRegressor()
 
@@ -125,9 +127,15 @@ model = BertRegressor()
 optimizer = AdamW(model.parameters(), lr=2e-5)
 loss_fn = nn.MSELoss()
 
+
 # Train the model
 model.train()
+best_acc = -10
 for epoch in range(10):  # To be changed
+    total_accuracy = 0
+    total_samples = 0
+    prediction_list = []
+    label_list = []
     for batch in train_loader:
         optimizer.zero_grad()
         input_ids = batch['input_ids']
@@ -135,22 +143,77 @@ for epoch in range(10):  # To be changed
         labels = batch['labels']
         outputs = model(input_ids=input_ids, attention_mask=attention_mask)
         loss = loss_fn(outputs.squeeze(), labels)
+        prediction_list.append(outputs.squeeze())
+        label_list.append(batch['labels'])
         loss.backward()
         optimizer.step()
-    print(f"Epoch {epoch}, Loss: {loss.item()}")
+        # Calculate accuracy for this batch
+        batch_accuracy = torch.abs(outputs.squeeze() - labels)
+        mask = labels != 0  # Create a mask where label value is not equal to 0
+        batch_accuracy[mask] = 1 - batch_accuracy[mask] / labels[mask]  # Calculate accuracy for non-zero labels
+        batch_accuracy[~mask] = 0  # Set accuracy to 0 where label value is 0
+        batch_samples = labels.size(0)
+        
+        batch_accuracy = batch_accuracy.mean().item()  # Average accuracy per sample
+        batch_samples = labels.size(0)
+
+        total_accuracy += batch_accuracy * batch_samples
+
+        total_samples += batch_samples
+
+    # Calculate overall accuracy
+    accuracy = total_accuracy / total_samples
+    print("Accuracy:", accuracy)
     
-from torch.optim.lr_scheduler import StepLR
+    
+    if (accuracy > best_acc):
+        best_acc = accuracy
+        checkpoint_prefix = 'checkpoint-best-acc'
+        output_dir = os.path.join("BERTRegression", '{}'.format(checkpoint_prefix)) 
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)      
+        model_to_save = model.module if hasattr(model,'module') else model
+        output_dir = os.path.join(output_dir, '{}'.format('model.bin')) 
+        torch.save(model_to_save.state_dict(), output_dir)
+    print(f"Epoch {epoch}, Loss: {loss.item()} \n")
+    print(f"Best acc {best_acc}, Epoch: {epoch} \n")
 
-# After optimizer definition
-scheduler = StepLR(optimizer, step_size=10, gamma=0.1) # Example parameters
 
-# In your training loop, after optimizer.step()
-scheduler.step()
 # Evaluation
+model.load_state_dict(torch.load(output_dir))
 model.eval()
+prediction_list = []
+label_list = []
+total_accuracy = 0
+total_samples = 0
 for batch in val_loader:
     with torch.no_grad():
         input_ids = batch['input_ids']
         attention_mask = batch['attention_mask']
+        labels = batch['labels']  # Get labels from batch
+
+        # Forward pass
         outputs = model(input_ids=input_ids, attention_mask=attention_mask)
-        print(f"Predicted label: {outputs.squeeze().item()}, Actual label: {batch['labels'].item()}")
+        
+        # Print predicted and actual labels for debugging
+        print(f"Predicted label: {outputs.squeeze().item()}, Actual label: {labels.item()}")
+
+        # Append predictions and labels
+        prediction_list.append(outputs.squeeze().item())
+        label_list.append(labels.item())
+
+        # Calculate accuracy for this batch
+        batch_accuracy = torch.abs(outputs.squeeze() - labels)
+        mask = labels != 0  # Create a mask where label value is not equal to 0
+        batch_accuracy[mask] = 1 - batch_accuracy[mask] / labels[mask]
+        batch_accuracy[~mask] = 0  # Set accuracy to 0 where label value is 0
+        batch_accuracy = batch_accuracy.sum().item() / labels.size(0)  # Average accuracy per sample
+        batch_samples = labels.size(0)
+    
+        total_accuracy += batch_accuracy * batch_samples
+        total_samples += batch_samples
+
+# Calculate overall accuracy
+accuracy = total_accuracy / total_samples
+print("Accuracy:", accuracy)
+    

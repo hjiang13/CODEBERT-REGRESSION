@@ -186,7 +186,7 @@ for epoch in range(10):  # To be changed
 
 
 # Evaluation
-model.load_state_dict(torch.load(output_dir))
+#model.load_state_dict(torch.load(output_dir))
 model.eval()
 prediction_list = []
 label_list = []

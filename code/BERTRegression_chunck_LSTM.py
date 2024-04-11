@@ -84,7 +84,7 @@ tokenizer = RobertaTokenizer.from_pretrained("neulab/codebert-cpp")
 train_dataset = SentimentDataset(train_data['code'].to_numpy(), train_data['label'].to_numpy(), tokenizer)
 eval_dataset = SentimentDataset(eval_data['code'].to_numpy(), eval_data['label'].to_numpy(), tokenizer)
 
-train_loader = DataLoader(train_dataset, batch_size=2, shuffle=True)
+train_loader = DataLoader(train_dataset, batch_size=1, shuffle=True)
 eval_loader = DataLoader(eval_dataset, batch_size=1)
 
 # Define a regression model on BERT
@@ -121,7 +121,7 @@ loss_fn = nn.MSELoss()
 
 # Train the model
 model.train()
-for epoch in range(10):  # To be changed
+for epoch in range(5):  # To be changed
     for batch in train_loader:
         optimizer.zero_grad()
         input_ids = batch['input_ids']

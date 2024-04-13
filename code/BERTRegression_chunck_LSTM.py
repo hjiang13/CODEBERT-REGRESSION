@@ -46,7 +46,7 @@ with open(evalDataPath, "r") as data_file:
 
 # define a datasets
 class SentimentDataset(Dataset):
-    def __init__(self, texts, labels, tokenizer, max_token_len=512, chunk_size=510):
+    def __init__(self, texts, labels, tokenizer, max_token_len=512, chunk_size=512):
         self.texts = texts
         self.labels = labels
         self.tokenizer = tokenizer
@@ -164,12 +164,18 @@ for batch in eval_loader:
         label_list.append(labels.item())
 
         # Calculate accuracy for this batch
-        batch_accuracy = torch.abs(outputs.squeeze() - labels)
-        mask = labels != 0  # Create a mask where label value is not equal to 0
-        batch_accuracy[mask] = 1 - batch_accuracy[mask] / labels[mask]
-        batch_accuracy[~mask] = 0  # Set accuracy to 0 where label value is 0
-        batch_accuracy = batch_accuracy.sum().item() / labels.size(0)  # Average accuracy per sample
+        #batch_accuracy = torch.abs(outputs.squeeze() - labels)
+        #mask = labels != 0  # Create a mask where label value is not equal to 0
+        #batch_accuracy[mask] = 1 - batch_accuracy[mask] / labels[mask]
+        #batch_accuracy[~mask] = 0  # Set accuracy to 0 where label value is 0
+        #batch_accuracy = batch_accuracy.sum().item() / labels.size(0)  # Average accuracy per sample
         batch_samples = labels.size(0)
+        batch_loss_fn = nn.MSELoss()
+        batch_accuracy = batch_loss_fn(outputs, labels)
+
+        print("batch accuracy is:", batch_accuracy.item())
+        
+
     
         total_accuracy += batch_accuracy * batch_samples
         total_samples += batch_samples

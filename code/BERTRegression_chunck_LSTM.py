@@ -27,8 +27,8 @@ with open(trainDataPath, "r") as data_file:
         df_line = pd.DataFrame(lineList, columns=['code', 'label'])
         train_data = pd.concat([train_data, df_line])
         i += 1
-        #if i > 5:
-        #    break
+        if i > 0:
+            break
 
 with open(evalDataPath, "r") as data_file:
     i = 0
@@ -116,7 +116,7 @@ class BertRegressor(nn.Module):
 model = BertRegressor()
 
 # Def optimizer and loss function
-optimizer = AdamW(model.parameters(), lr= 1e-5)
+optimizer = AdamW(model.parameters(), lr= 5e-5)
 loss_fn = nn.MSELoss()
 
 # Train the model

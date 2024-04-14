@@ -27,8 +27,8 @@ with open(trainDataPath, "r") as data_file:
         df_line = pd.DataFrame(lineList, columns=['code', 'label'])
         train_data = pd.concat([train_data, df_line])
         i += 1
-        if i > 0:
-            break
+        #if i > 0:
+        #    break
 
 with open(evalDataPath, "r") as data_file:
     i = 0
@@ -84,8 +84,8 @@ tokenizer = RobertaTokenizer.from_pretrained("neulab/codebert-cpp")
 train_dataset = SentimentDataset(train_data['code'].to_numpy(), train_data['label'].to_numpy(), tokenizer)
 eval_dataset = SentimentDataset(eval_data['code'].to_numpy(), eval_data['label'].to_numpy(), tokenizer)
 
-train_loader = DataLoader(train_dataset, batch_size=1, shuffle=True)
-eval_loader = DataLoader(eval_dataset, batch_size=1)
+train_loader = DataLoader(train_dataset, batch_size=8, shuffle=True)
+eval_loader = DataLoader(eval_dataset, batch_size=4)
 
 # Define a regression model on BERT
 class BertRegressor(nn.Module):
@@ -121,7 +121,7 @@ loss_fn = nn.MSELoss()
 
 # Train the model
 model.train()
-for epoch in range(5):  # To be changed
+for epoch in range(10):  # To be changed
     for batch in train_loader:
         optimizer.zero_grad()
         input_ids = batch['input_ids']

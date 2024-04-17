@@ -85,7 +85,7 @@ train_dataset = SentimentDataset(train_data['code'].to_numpy(), train_data['labe
 eval_dataset = SentimentDataset(eval_data['code'].to_numpy(), eval_data['label'].to_numpy(), tokenizer)
 
 train_loader = DataLoader(train_dataset, batch_size=8, shuffle=True)
-eval_loader = DataLoader(eval_dataset, batch_size=4)
+eval_loader = DataLoader(eval_dataset, batch_size=1)
 
 # Define a regression model on BERT
 class BertRegressor(nn.Module):

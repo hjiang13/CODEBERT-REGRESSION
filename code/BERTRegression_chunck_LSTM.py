@@ -157,7 +157,7 @@ for batch in eval_loader:
         outputs = model(input_ids=input_ids, attention_mask=attention_mask)
         
         # Print predicted and actual labels for debugging
-        print(f"Predicted label: {outputs.squeeze().item()}, Actual label: {labels.item()}")
+        print(f"Predicted label: {round(outputs.squeeze().item(), 3)}, Actual label: {round(labels.item(), 3)}")
 
         # Append predictions and labels
         prediction_list.append(outputs.squeeze().item())

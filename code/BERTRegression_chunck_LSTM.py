@@ -111,7 +111,7 @@ class BertRegressor(nn.Module):
         # LSTM processing
         _, (hidden, _) = self.lstm(cls_embeddings)
         # Convert PyTorch tensor to NumPy array for KeyBERT
-        cls_embeddings_np = hidden[-1].detach().cpu().numpy()
+        cls_embeddings_np = hidden.squeeze(0).numpy()
         print (cls_embeddings_np)
         # Extract the key features
         kw_model = KeyBERT()

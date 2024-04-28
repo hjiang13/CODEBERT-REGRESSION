@@ -2,6 +2,7 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 import pandas as pd
 from transformers import BertTokenizer, BertModel, AdamW
+from keybert import KeyBERT
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 from torch import nn
@@ -27,8 +28,8 @@ with open(trainDataPath, "r") as data_file:
         df_line = pd.DataFrame(lineList, columns=['code', 'label'])
         train_data = pd.concat([train_data, df_line])
         i += 1
-        #if i > 0:
-        #    break
+        if i > 0:
+            break
 
 with open(evalDataPath, "r") as data_file:
     i = 0
@@ -38,8 +39,8 @@ with open(evalDataPath, "r") as data_file:
         df_line = pd.DataFrame(lineList, columns=['code', 'label'])
         eval_data = pd.concat([eval_data, df_line])
         i += 1
-        #if i > 5:
-        #    break
+        if i > 5:
+            break
 
 
 #data = pd.read_json("../dataset/benign_train_resilience_r.jsonl")
@@ -110,6 +111,11 @@ class BertRegressor(nn.Module):
         # LSTM processing
         _, (hidden, _) = self.lstm(cls_embeddings)
 
+        # Extract the key features
+        kw_model = KeyBERT()
+        keywords = kw_model.extract_keywords(hidden.numpy(), keyphrase_ngram_range=(1, 1), stop_words='none', use_maxsum=True, nr_candidates=20, top_n=5)
+        print(keywords)
+
         # Regression
         return F.sigmoid(self.regressor(hidden.squeeze(0)))
 
@@ -121,7 +127,7 @@ loss_fn = nn.MSELoss()
 
 # Train the model
 model.train()
-for epoch in range(10):  # To be changed
+for epoch in range(1):  # To be changed
     for batch in train_loader:
         optimizer.zero_grad()
         input_ids = batch['input_ids']

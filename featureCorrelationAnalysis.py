@@ -1,48 +1,36 @@
-import csv
-from collections import defaultdict
+import pandas as pd
 
-# Define the sets for keyword scoring
-SDC_equal_keywords = set(['Backprop'])
-SDC_better_keywords = set(['IS', 'STREAM', 'PuReMD', 'Kmeans', 'Lulesh', "MG", "LU", "Bfs-rodinia", "CG", "NW", "BT"])
-SDC_worse_keywords = set(['DC', 'Blackholes', 'hotspot', 'Lud', "SP", "Nn", "Pathfinder"])
+# Creating a DataFrame from the provided data
 
-def load_keywords_and_scores(csv_path: str):
-    """Load keywords from a CSV and score them based on predefined groups."""
-    keyword_scores = defaultdict(int)
-    with open(csv_path, 'r', encoding='utf-8') as csvfile:
-        reader = csv.reader(csvfile)
-        next(reader)  # Skip the header row
-        for row in reader:
-            if len(row) < 2:
-                continue  # Skip rows that do not have enough data
-            filename, keywords_str = row
-            keywords = keywords_str.split(',')
-            for keyword in keywords:
-                if keyword in SDC_equal_keywords:
-                    score = 0
-                elif keyword in SDC_better_keywords:
-                    score = 1
-                elif keyword in SDC_worse_keywords:
-                    score = -1
-                else:
-                    continue  # If the keyword doesn't match any group, skip it
-                keyword_scores[keyword] += score
-    return keyword_scores
+df = pd.read_csv("keyFeature.csv")
 
-def get_top_keywords(keyword_scores, top_n=20):
-    """Return the top N keywords sorted by their scores."""
-    # Sort keywords by score in descending order and return the top N
-    return sorted(keyword_scores.items(), key=lambda item: item[1], reverse=True)[:top_n]
+# Splitting keywords into keys by ','
+df['Keywords'] = df['Keywords'].apply(lambda x: x.split(','))
 
-# Path to the CSV file containing keywords and files
-csv_path = 'keyFeature.csv'
+# Creating a dictionary to hold the initial score of all keys
+key_scores = {}
 
-# Process the CSV file to score each keyword
-keyword_scores = load_keywords_and_scores(csv_path)
+# SDC group sets
+SDC_better_keywords = set(['IS', 'STREAM', 'PuReMD', 'Kmeans', 'Lulesh', "MG", "LU", "Bfs-rodinia", "CG", "NW"])
+SDC_worse_keywords = set(['DC', 'Blacksholes', 'Hotspot', 'Lud', "SP", "Nn", "Pathfinder"])
 
-# Get the top 20 keywords
-top_keywords = get_top_keywords(keyword_scores)
+# Increment and decrement scores based on the SDC groups
+for index, row in df.iterrows():
+    bench = row['Filename']
+    keywords = row['Keywords']
+    for key in keywords:
+        if key not in key_scores:
+            key_scores[key] = 0
+        if bench in SDC_better_keywords:
+            key_scores[key] += 1
+        if bench in SDC_worse_keywords:
+            key_scores[key] -= 1
 
-print("Top 20 Keywords by Score:")
-for keyword, score in top_keywords:
-    print(f"{keyword}: {score}")
+# Sorting the scores
+sorted_scores = sorted(key_scores.items(), key=lambda item: item[1], reverse=True)
+
+# Getting the top 20 and last 20 keys based on scores
+top_20 = sorted_scores[:20]
+last_20 = sorted_scores[-20:]
+
+print(top_20, last_20)

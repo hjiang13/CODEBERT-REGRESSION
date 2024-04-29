@@ -7,7 +7,7 @@ def load_file_content(file_path: str) -> str:
     with open(file_path, 'r', encoding='utf-8') as file:
         return file.read()
 
-def extract_keywords(text: str, num_keywords: int = 20) -> List[str]:
+def extract_keywords(text: str, num_keywords: int = 5) -> List[str]:
     """Extract keywords from the provided text."""
     kw_model = KeyBERT()
     keywords = kw_model.extract_keywords(text, keyphrase_ngram_range=(1, 1), stop_words='english', use_mmr=True, diversity=0.5, top_n=num_keywords)
@@ -41,7 +41,7 @@ def load_file_content(file_path: str) -> str:
     with open(file_path, 'r', encoding='utf-8') as file:
         return file.read()
 
-def extract_keywords(text: str, num_keywords: int = 20) -> List[str]:
+def extract_keywords(text: str, num_keywords: int = 500) -> List[str]:
     """Extract keywords from the provided text."""
     kw_model = KeyBERT()
     keywords = kw_model.extract_keywords(text, keyphrase_ngram_range=(1, 1), stop_words='english', use_mmr=True, diversity=0.5, top_n=num_keywords)

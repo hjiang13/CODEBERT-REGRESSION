@@ -9,17 +9,22 @@ model_name = "microsoft/codebert-base"
 model = AutoModel.from_pretrained(model_name)
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 #creat embedding function
-def codebert_embeddings(texts):
-    # Tokenize input texts
-    encoded_input = tokenizer(texts, padding=True, truncation=True, return_tensors='pt', max_length=512)
-    # Get model output
-    with torch.no_grad():
-        model_output = model(**encoded_input)
-    # Mean pooling the token embeddings
-    input_mask_expanded = encoded_input['attention_mask'].unsqueeze(-1).expand(model_output.last_hidden_state.size()).float()
-    return torch.sum(model_output.last_hidden_state * input_mask_expanded, 1) / torch.clamp(input_mask_expanded.sum(1), min=1e-9)
+class CodeBERTEmbedder(BaseEstimator, TransformerMixin):
+    def __init__(self, model, tokenizer):
+        self.model = model
+        self.tokenizer = tokenizer
 
+    def fit(self, X, y=None):
+        return self  # Nothing to fit, so just return self
 
+    def transform(self, texts):
+        encoded_input = self.tokenizer(texts, padding=True, truncation=True, return_tensors='pt', max_length=512)
+        with torch.no_grad():
+            model_output = self.model(**encoded_input)
+        input_mask_expanded = encoded_input['attention_mask'].unsqueeze(-1).expand(model_output.last_hidden_state.size()).float()
+        embeddings = torch.sum(model_output.last_hidden_state * input_mask_expanded, 1) / torch.clamp(input_mask_expanded.sum(1), min=1e-9)
+        return embeddings.cpu().numpy()  # Convert embeddings to NumPy array for compatibility with KeyBERT
+codebert_embedder = CodeBERTEmbedder(model=model, tokenizer=tokenizer)
 def load_file_content(file_path: str) -> str:
     """Load and return the content of a file."""
     with open(file_path, 'r', encoding='utf-8') as file:
@@ -27,8 +32,8 @@ def load_file_content(file_path: str) -> str:
 
 def extract_keywords(text: str, num_keywords: int = 512) -> List[str]:
     """Extract keywords from the provided text."""
-    kw_model = KeyBERT()
-    keywords = kw_model.extract_keywords(text, vectorizer=codebert_embeddings)
+    kw_model = KeyBERT(vectorizer=codebert_embedder)
+    keywords = kw_model.extract_keywords(text)
     return [kw[0] for kw in keywords]
 
 def extract_features_from_files(directory: str) -> Dict[str, List[str]]:

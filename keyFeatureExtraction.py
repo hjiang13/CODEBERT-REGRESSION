@@ -2,6 +2,23 @@ import os
 import csv
 from keybert import KeyBERT
 from typing import List, Dict
+from transformers import AutoModel, AutoTokenizer
+import torch
+
+model_name = "microsoft/codebert-base"
+model = AutoModel.from_pretrained(model_name)
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+#creat embedding function
+def codebert_embeddings(texts):
+    # Tokenize input texts
+    encoded_input = tokenizer(texts, padding=True, truncation=True, return_tensors='pt', max_length=512)
+    # Get model output
+    with torch.no_grad():
+        model_output = model(**encoded_input)
+    # Mean pooling the token embeddings
+    input_mask_expanded = encoded_input['attention_mask'].unsqueeze(-1).expand(model_output.last_hidden_state.size()).float()
+    return torch.sum(model_output.last_hidden_state * input_mask_expanded, 1) / torch.clamp(input_mask_expanded.sum(1), min=1e-9)
+
 
 def load_file_content(file_path: str) -> str:
     """Load and return the content of a file."""
@@ -10,8 +27,8 @@ def load_file_content(file_path: str) -> str:
 
 def extract_keywords(text: str, num_keywords: int = 512) -> List[str]:
     """Extract keywords from the provided text."""
-    kw_model = KeyBERT(model='microsoft/codebert-base')
-    keywords = kw_model.extract_keywords(text, keyphrase_ngram_range=(1, 1), stop_words='english', use_mmr=True, diversity=0.5, top_n=num_keywords)
+    kw_model = KeyBERT()
+    keywords = kw_model.extract_keywords(text, vectorizer=codebert_embeddings, keyphrase_ngram_range=(1, 1), stop_words='english', use_mmr=True, diversity=0.5, top_n=num_keywords)
     return [kw[0] for kw in keywords]
 
 def extract_features_from_files(directory: str) -> Dict[str, List[str]]:

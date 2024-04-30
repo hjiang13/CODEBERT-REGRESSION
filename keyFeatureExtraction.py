@@ -34,7 +34,7 @@ def load_file_content(file_path: str) -> str:
 
 def extract_keywords(text: str, num_keywords: int = 512) -> List[str]:
     """Extract keywords from the provided text."""
-    kw_model = KeyBERT(vectorizer=codebert_embedder)
+    kw_model = KeyBERT(embeddings=codebert_embedder)
     keywords = kw_model.extract_keywords(text)
     return [kw[0] for kw in keywords]
 

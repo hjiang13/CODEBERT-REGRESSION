@@ -4,6 +4,8 @@ from keybert import KeyBERT
 from typing import List, Dict
 from transformers import AutoModel, AutoTokenizer
 import torch
+from sklearn.base import BaseEstimator, TransformerMixin
+
 
 model_name = "microsoft/codebert-base"
 model = AutoModel.from_pretrained(model_name)

@@ -12,7 +12,7 @@ X = vectorizer.fit_transform(keywords_df['Keywords'])
 
 # Function to calculate token importance for a specific error type
 def calculate_token_importance(X, y):
-    logreg = LinearRegression(max_iter=1000)
+    logreg = LinearRegression()
     logreg.fit(X, y)
     importance_df = pd.DataFrame({
         'Token': vectorizer.get_feature_names_out(),

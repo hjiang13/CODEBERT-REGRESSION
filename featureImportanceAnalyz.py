@@ -4,7 +4,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 
 # Load data
 keywords_df = pd.read_csv('keyFeature.csv')
-labels_df = pd.read_csv('LSTM_result.csv')
+labels_df = pd.read_csv('result.csv')
 
 # Preprocessing
 vectorizer = CountVectorizer(tokenizer=lambda x: x.split(','))

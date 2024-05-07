@@ -29,4 +29,4 @@ SDC_importance = calculate_token_importance(X, labels_df['Actual_SDC'])
 # Display results
 print("Benign Token Importance:\n", benign_importance.head(10))
 print("\nCrash Token Importance:\n", crash_importance.head(10))
-print("\nSDC Token Importance:\n", SDC_importance.head(10))
+print("\nSDC Token Importance:\n", SDC_importance.head(100))

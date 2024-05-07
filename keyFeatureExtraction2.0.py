@@ -50,7 +50,7 @@ def load_file_content(file_path: str) -> str:
 def extract_keywords(text: str, num_keywords: int = 512) -> List[str]:
     """Extract keywords from the provided text."""
     kw_model = KeyBERT(model = codebert_embedder)
-    keywords = kw_model.extract_keywords(text,keyphrase_ngram_range=(1, 2), stop_words='none', top_n=500)
+    keywords = kw_model.extract_keywords(text,keyphrase_ngram_range=(1, 1), stop_words='none', top_n=500)
     return [kw[0] for kw in keywords]
 
 def extract_features_from_files(directory: str) -> Dict[str, List[str]]:

@@ -1,5 +1,5 @@
 import pandas as pd
-from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LinearRegression
 from sklearn.feature_extraction.text import CountVectorizer
 
 # Load data
@@ -12,7 +12,7 @@ X = vectorizer.fit_transform(keywords_df['Keywords'])
 
 # Function to calculate token importance for a specific error type
 def calculate_token_importance(X, y):
-    logreg = LogisticRegression(max_iter=1000)
+    logreg = LinearRegression(max_iter=1000)
     logreg.fit(X, y)
     importance_df = pd.DataFrame({
         'Token': vectorizer.get_feature_names_out(),

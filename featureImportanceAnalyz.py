@@ -4,7 +4,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 
 # Load data
 keywords_df = pd.read_csv('keyFeature.csv')
-labels_df = pd.read_csv('result.csv')
+labels_df = pd.read_csv('PARIS_result.csv')
 
 # Preprocessing
 vectorizer = CountVectorizer(tokenizer=lambda x: x.split(','))
@@ -22,9 +22,9 @@ def calculate_token_importance(X, y):
     return importance_df.sort_values(by='Importance', ascending=False)
 
 # Calculate importance for each error type
-benign_importance = calculate_token_importance(X, labels_df['benign Actual label'])
-crash_importance = calculate_token_importance(X, labels_df['crash Actual label'])
-SDC_importance = calculate_token_importance(X, labels_df['SDC Actual label'])
+benign_importance = calculate_token_importance(X, labels_df['Actual_benign'])
+crash_importance = calculate_token_importance(X, labels_df['Actual_crash'])
+SDC_importance = calculate_token_importance(X, labels_df['Actual_SDC'])
 
 # Display results
 print("Benign Token Importance:\n", benign_importance.head(10))

@@ -76,7 +76,7 @@ def save_features_to_csv(features: Dict[str, List[str]], csv_path: str):
 # Directory containing the C++ files
 directory = '../DARE/hpc_applications/Benchmarks/'
 # Path to save the CSV
-csv_path = './keyFeatures.csv'
+csv_path = './keyFeature.csv'
 
 features = extract_features_from_files(directory)
 save_features_to_csv(features, csv_path)

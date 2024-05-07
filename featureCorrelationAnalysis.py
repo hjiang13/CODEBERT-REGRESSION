@@ -9,7 +9,7 @@ df['Keywords'] = df['Keywords'].apply(lambda x: x.split(','))
 
 # Creating a dictionary to hold the initial score of all keys
 key_scores = {}
-k  = 512
+k  = 10
 # SDC group sets
 SDC_better_keywords = set(['IS', 'STREAM', 'PuReMD', 'Kmeans', 'Lulesh', "MG", "LU", "Bfs-rodinia", "CG", "NW"])
 SDC_worse_keywords = set(['DC', 'Blacksholes', 'Hotspot', 'Lud', "SP", "Nn", "Pathfinder"])

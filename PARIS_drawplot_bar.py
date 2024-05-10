@@ -1,6 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-
+plt.rcParams['font.size'] = 20
 # Data
 data = {
 
@@ -15,7 +15,7 @@ df = pd.DataFrame(data)
 df_sorted = df.sort_values("SDC MSE")
 
 # Plotting
-fig, ax = plt.subplots(figsize=(14, 7))
+fig, ax = plt.subplots(figsize=(20, 10))
 
 # Calculate and plot averages for each MSE category
 avg_benign_mse = df["benign MSE"].mean()
@@ -23,29 +23,29 @@ avg_crash_mse = df["crash MSE"].mean()
 avg_sdc_mse = df["SDC MSE"].mean()
 
 # Create bar chart
-width = 0.2
+width = 0.3
 x = range(len(df_sorted))
 ax.bar(x, df_sorted["benign MSE"], width, label='Benign MSE', color='green')
 ax.bar([p + width for p in x], df_sorted["crash MSE"], width, label='Crash MSE', color='red')
 ax.bar([p + 2*width for p in x], df_sorted["SDC MSE"], width, label='SDC MSE', color='orange')
 # Table data
 table_data=[
-    ["Benign MSE", "1.000", "0.605", "0.258"],
-    ["Crash MSE", "0.605", "1.000", "-0.194"],
-    ["SDC MSE", "0.258", "-0.194", "1.000"]
+    ["Benign MSE", "1.000", "-1.807", "0.536"],
+    ["Crash MSE", "-1.807", "1.000", "0.103"],
+    ["SDC MSE", "0.536", "0.103", "1.000"]
 ]
-
 # Add table to the plot
-table = ax.table(cellText=table_data, colLabels=["CC", "Benign MSE", "Crash MSE", "SDC MSE"], loc='upper center', cellLoc='left')
+table = ax.table(cellText=table_data, colLabels=["CC", "Benign MSE", "Crash MSE", "SDC MSE"], loc='upper center', cellLoc='center')
 table.auto_set_font_size(False)
-table.set_fontsize(12)
-table.scale(0.5, 1.5)  # Adjust scale to match the plot aesthetics
+table.set_fontsize(24)
+table.scale(0.8,2.4)  # Adjust scale to match the plot aesthetics
 
 # Additional plot settings
 ax.set_xlabel("Benchmark")
 ax.set_ylabel("Mean Squared Error (MSE)")
 #ax.set_title("MSE Comparison Across Benchmarks")
-ax.legend(loc='upper left')
+ax.legend(loc='center left')
+ax.grid(axis='y')
 plt.xticks([p + width for p in x], df_sorted["BenchMark"], rotation=45)
 plt.subplots_adjust(left=0.05, bottom=0.1, right=0.99, top=0.99, wspace=0, hspace=0)
 plt.show()

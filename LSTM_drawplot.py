@@ -20,7 +20,7 @@ df = df.sort_values(by="SDC MSE", ascending=True)
 # Plotting
 fig, ax = plt.subplots(figsize=(14, 8))
 x = np.arange(len(df['BenchMark']))
-width = 0.25
+width = 0.3
 
 # Bars for MSE
 rects1 = ax.bar(x - width, df['benign MSE'], width, label='Benign MSE',color='b')

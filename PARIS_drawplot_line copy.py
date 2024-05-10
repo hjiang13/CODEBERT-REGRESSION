@@ -1,6 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-
+plt.rcParams['font.size'] = 20
 # Data
 data = {
 
@@ -15,7 +15,7 @@ df = pd.DataFrame(data)
 df_sorted = df.sort_values("SDC MSE")
 
 # Plotting
-fig, ax = plt.subplots(figsize=(14, 7))
+fig, ax = plt.subplots(figsize=(20, 10))
 ax.plot(df_sorted["BenchMark"], df_sorted["benign MSE"], label="Benign MSE", marker='v',color='blue')
 ax.plot(df_sorted["BenchMark"], df_sorted["crash MSE"], label="Crash MSE", marker='o',color='orange')
 ax.plot(df_sorted["BenchMark"], df_sorted["SDC MSE"], label="SDC MSE", marker='s',color='green')
@@ -39,14 +39,15 @@ table_data=[
 # Add table to the plot
 table = ax.table(cellText=table_data, colLabels=["CC", "Benign MSE", "Crash MSE", "SDC MSE"], loc='upper center', cellLoc='left')
 table.auto_set_font_size(False)
-table.set_fontsize(12)
-table.scale(0.5, 1.5)  # Adjust scale to match the plot aesthetics
+table.set_fontsize(24)
+table.scale(0.8, 2.4)  # Adjust scale to match the plot aesthetics
 
 # Additional plot settings
 ax.set_xlabel("Benchmark")
 ax.set_ylabel("Mean Squared Error (MSE)")
 #ax.set_title("MSE Comparison Across Benchmarks")
-ax.legend(loc='upper left')
+ax.legend(loc='center left')
+ax.grid(axis='y')
 plt.xticks(rotation=45)
 plt.subplots_adjust(left=0.05, bottom=0.1, right=0.99, top=0.99, wspace=0, hspace=0)
 plt.show()

@@ -1,6 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-
+plt.rcParams['font.size'] = 20
 # Load the DataFrame from a CSV file.
 # Make sure to update the file path according to your CSV structure.
 df = pd.read_csv("result.csv")
@@ -15,7 +15,7 @@ df['MSE'] = (df['Obs_SDC_Norm'] - df['PARIS_SDC_Norm']) ** 2
 df_sorted = df.sort_values(by='MSE')
 
 # Create a plot
-fig, ax1 = plt.subplots(figsize=(10, 6))
+fig, ax1 = plt.subplots(figsize=(20, 10))
 
 # Histogram for MSE
 ax1.bar(df_sorted['BenchMark'], df_sorted['MSE'], color="grey", label='MSE')
@@ -36,7 +36,7 @@ avg_mse = df['MSE'].mean()
 ax1.axhline(avg_mse, color='red', linestyle='--', label='Average MSE')
 
 # Add custom text regarding the CC_MSE_WC value
-plt.figtext(0.5, 0.8, "CC_MSE_WC = 0.512", ha="center", fontsize=12, color='black')
+plt.figtext(0.5, 0.8, "CC_MSE_WC = 0.512", ha="center", fontsize=24, color='black')
 
 
 # Legend
@@ -44,7 +44,7 @@ fig.legend(loc='upper left', bbox_to_anchor=(0.1, 0.9))
 
 # Removing grid lines
 ax1.grid(False)
-ax2.grid(False)
+ax2.grid(True)
 
 # Save the plot as PDF
 plt.savefig("PARIS_SDC.png")

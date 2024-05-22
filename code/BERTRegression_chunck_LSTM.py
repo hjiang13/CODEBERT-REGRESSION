@@ -28,8 +28,8 @@ with open(trainDataPath, "r") as data_file:
         df_line = pd.DataFrame(lineList, columns=['code', 'label'])
         train_data = pd.concat([train_data, df_line])
         i += 1
-        if i > 0:
-            break
+        #if i > 0:
+        #    break
 
 with open(evalDataPath, "r") as data_file:
     i = 0
@@ -39,8 +39,8 @@ with open(evalDataPath, "r") as data_file:
         df_line = pd.DataFrame(lineList, columns=['code', 'label'])
         eval_data = pd.concat([eval_data, df_line])
         i += 1
-        if i > 5:
-            break
+        #if i > 5:
+        #    break
 
 
 #data = pd.read_json("../dataset/benign_train_resilience_r.jsonl")

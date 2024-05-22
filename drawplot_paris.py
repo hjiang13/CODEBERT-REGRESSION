@@ -12,10 +12,10 @@ print(df.columns)
 df['MSE'] = (df['Obs_SDC_Norm'] - df['PARIS_SDC_Norm']) ** 2
 
 # Sort data by MSE
-df_sorted = df.sort_values(by='MSE')
+df_sorted = df.sort_values(by='wordCount')
 
 # Create a plot
-fig, ax1 = plt.subplots(figsize=(20, 10))
+fig, ax1 = plt.subplots(figsize=(20, 13))
 
 # Histogram for MSE
 ax1.bar(df_sorted['BenchMark'], df_sorted['MSE'], color="grey", label='MSE')
